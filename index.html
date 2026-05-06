@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jollywood Insider | Live Industry Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'serif': ['Playfair Display', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'hollywood': {
+                            900: '#0a0a0f',
+                            800: '#12121a',
+                            700: '#1a1a2e',
+                            600: '#16213e',
+                            gold: '#d4af37',
+                            'gold-light': '#f4e4ba',
+                            'gold-dark': '#b8941f',
+                            red: '#e50914',
+                        }
+                    },
+                    animation: {
+                        'ticker': 'ticker 50s linear infinite',
+                        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in': 'fadeIn 0.5s ease-in',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                    },
+                    keyframes: {
+                        ticker: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0a0a0f; color: #e5e7eb; }
+        .gold-gradient {
+            background: linear-gradient(135deg, #d4af37 0%, #f4e4ba 50%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .glass-panel {
+            background: rgba(26, 26, 46, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        .news-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(212, 175, 55, 0.15);
+        }
+        .premium-badge {
+            background: linear-gradient(135deg, #d4af37, #b8941f);
+        }
+        .ticker-wrap { overflow: hidden; white-space: nowrap; }
+        .ticker-content {
+            display: inline-block;
+            animation: ticker 50s linear infinite;
+        }
+        .ticker-content:hover { animation-play-state: paused; }
+        .adsense-box {
+            background: rgba(18, 18, 26, 0.8);
+            border: 1px dashed rgba(212, 175, 55, 0.3);
+        }
+        .exclusive-stamp {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(229, 9, 20, 0.9);
+            color: white;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transform: rotate(3deg);
+            z-index: 10;
+        }
+        .insider-tag {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #d4af37;
+        }
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+        }
+        .loading-skeleton {
+            background: linear-gradient(90deg, #1a1a2e 25%, #16213e 50%, #1a1a2e 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .paywall-blur {
+            filter: blur(4px);
+            opacity: 0.4;
+            pointer-events: none;
+            user-select: none;
+        }
+        .paywall-overlay {
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(4px);
+        }
+        .source-badge-variety { background: rgba(229, 9, 20, 0.2); color: #e50914; border-color: rgba(229, 9, 20, 0.3); }
+        .source-badge-thr { background: rgba(0, 150, 136, 0.2); color: #009688; border-color: rgba(0, 150, 136, 0.3); }
+        .source-badge-deadline { background: rgba(255, 152, 0, 0.2); color: #ff9800; border-color: rgba(255, 152, 0, 0.3); }
+        .source-badge-wrap { background: rgba(63, 81, 181, 0.2); color: #3f51b5; border-color: rgba(63, 81, 181, 0.3); }
+        .source-badge-indiewire { background: rgba(156, 39, 176, 0.2); color: #9c27b0; border-color: rgba(156, 39, 176, 0.3); }
+        .source-badge-newsapi { background: rgba(33, 150, 243, 0.2); color: #2196f3; border-color: rgba(33, 150, 243, 0.3); }
+        .source-badge-reuters { background: rgba(121, 85, 72, 0.2); color: #795548; border-color: rgba(121, 85, 72, 0.3); }
+        .source-badge-bbc { background: rgba(244, 67, 54, 0.2); color: #f44336; border-color: rgba(244, 67, 54, 0.3); }
+        .source-badge-cnn { background: rgba(255, 87, 34, 0.2); color: #ff5722; border-color: rgba(255, 87, 34, 0.3); }
+        .source-badge-entertainment_weekly { background: rgba(0, 188, 212, 0.2); color: #00bcd4; border-color: rgba(0, 188, 212, 0.3); }
+        .source-badge-the_verge { background: rgba(156, 39, 176, 0.2); color: #9c27b0; border-color: rgba(156, 39, 176, 0.3); }
+    </style>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9732868041262758" crossorigin="anonymous"></script>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- Breaking News Ticker -->
+    <div class="bg-hollywood-red text-white py-2 overflow-hidden relative z-50">
+        <div class="ticker-wrap">
+            <div class="ticker-content text-sm font-semibold tracking-wide" id="breakingTicker">
+                <span class="mx-8">Initializing NewsAPI feed...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-40 glass-panel border-b border-hollywood-gold/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-film text-hollywood-gold text-2xl"></i>
+                    <span class="font-serif text-2xl font-bold gold-gradient tracking-tight">JOLLYWOOD INSIDER</span>
+                    <span class="hidden md:inline-block px-2 py-0.5 text-xs bg-hollywood-gold/20 text-hollywood-gold border border-hollywood-gold/30 rounded animate-pulse">LIVE</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#news" class="text-sm font-medium text-gray-300 hover:text-hollywood-gold transition-colors">Daily News</a>
+                    <a href="#boxoffice" class="text-sm font-medium text-gray-300 hover:text-hollywood-gold transition-colors">Box Office</a>
+                    <a href="#insider" class="text-sm font-medium text-gray-300 hover:text-hollywood-gold transition-colors">Insider Intel</a>
+                    <a href="#calendar" class="text-sm font-medium text-gray-300 hover:text-hollywood-gold transition-colors">Release Calendar</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Auth State: Logged Out -->
+                    <div id="authLoggedOut" class="hidden">
+                        <button onclick="toggleAuthModal()" class="px-4 py-2 text-sm font-medium text-hollywood-gold border border-hollywood-gold/30 rounded-lg hover:bg-hollywood-gold/10 transition-all">
+                            Sign In
+                        </button>
+                    </div>
+                    
+                    <!-- Auth State: Logged In -->
+                    <div id="authLoggedIn" class="hidden flex items-center space-x-3">
+                        <span id="premiumBadge" class="hidden px-2 py-0.5 text-xs bg-green-500/20 text-green-400 border border-green-500/30 rounded-full">
+                            <i class="fas fa-crown mr-1"></i>PREMIUM
+                        </span>
+                        <div class="relative" id="userMenuContainer">
+                            <button onclick="toggleUserMenu()" class="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors">
+                                <div class="w-8 h-8 rounded-full bg-hollywood-gold/20 flex items-center justify-center border border-hollywood-gold/30">
+                                    <i class="fas fa-user text-hollywood-gold text-sm"></i>
+                                </div>
+                                <span id="userEmail" class="text-sm hidden sm:inline"></span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <!-- Dropdown -->
+                            <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 glass-panel rounded-xl border border-hollywood-gold/20 shadow-xl py-2">
+                                <div class="px-4 py-2 border-b border-hollywood-gold/10">
+                                    <p class="text-xs text-gray-500">Signed in as</p>
+                                    <p id="userMenuEmail" class="text-sm text-white truncate"></p>
+                                </div>
+                                <button onclick="openBillingPortal()" id="billingPortalBtn" class="hidden w-full text-left px-4 py-2 text-sm text-hollywood-gold hover:bg-hollywood-gold/10 transition-colors">
+                                    <i class="fas fa-credit-card mr-2"></i>Manage Subscription
+                                </button>
+                                <button onclick="logout()" class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-gray-300 hover:text-white">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mobileMenu" class="hidden md:hidden glass-panel border-t border-hollywood-gold/10">
+            <div class="px-4 pt-2 pb-4 space-y-1">
+                <a href="#news" class="block px-3 py-2 text-base font-medium text-gray-300 hover:text-hollywood-gold hover:bg-hollywood-800 rounded-md">Daily News</a>
+                <a href="#boxoffice" class="block px-3 py-2 text-base font-medium text-gray-300 hover:text-hollywood-gold hover:bg-hollywood-800 rounded-md">Box Office</a>
+                <a href="#insider" class="block px-3 py-2 text-base font-medium text-gray-300 hover:text-hollywood-gold hover:bg-hollywood-800 rounded-md">Insider Intel</a>
+                <a href="#calendar" class="block px-3 py-2 text-base font-medium text-gray-300 hover:text-hollywood-gold hover:bg-hollywood-800 rounded-md">Release Calendar</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative overflow-hidden bg-hollywood-900 border-b border-hollywood-gold/10">
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-hollywood-900 via-hollywood-900/80 to-transparent"></div>
+        
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="animate-slide-up">
+                    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-hollywood-red/20 text-hollywood-red text-xs font-bold uppercase tracking-wider mb-6 border border-hollywood-red/20">
+                        <span class="w-2 h-2 rounded-full bg-hollywood-red animate-pulse"></span>
+                        <span>NewsAPI + RSS + BOM Live</span>
+                    </div>
+                    <h1 class="font-serif text-4xl md:text-6xl font-black text-white leading-tight mb-6">
+                        The Truth Behind <br>
+                        <span class="gold-gradient">The Silver Screen</span>
+                    </h1>
+                    <p class="text-lg text-gray-400 mb-8 max-w-lg leading-relaxed">
+                        Real-time news via NewsAPI, aggregated RSS from 5 industry outlets, and live Box Office Mojo tracking. Updated every hour from verified sources.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="scrollToSection('news')" class="px-8 py-4 bg-hollywood-gold text-hollywood-900 rounded-lg font-bold hover:bg-hollywood-gold-light transition-all transform hover:scale-105 shadow-lg shadow-hollywood-gold/20">
+                            Read Live Intel
+                        </button>
+                        <button onclick="refreshAllData()" class="px-8 py-4 border border-hollywood-gold/30 text-hollywood-gold rounded-lg font-semibold hover:bg-hollywood-gold/10 transition-all flex items-center">
+                            <i class="fas fa-sync-alt mr-2" id="refreshIcon"></i> Refresh Data
+                        </button>
+                    </div>
+                    <div class="mt-8 flex items-center space-x-6 text-sm text-gray-500">
+                        <span class="flex items-center"><i class="fas fa-bolt mr-2 text-hollywood-gold"></i> NewsAPI Active</span>
+                        <span class="flex items-center"><i class="fas fa-rss mr-2 text-hollywood-gold"></i> 5 RSS Feeds</span>
+                        <span class="flex items-center"><i class="fas fa-clock mr-2 text-hollywood-gold"></i> <span id="lastUpdated">Loading...</span></span>
+                    </div>
+                </div>
+                
+                <div class="relative animate-fade-in">
+                    <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl shadow-hollywood-gold/10 border border-hollywood-gold/20">
+                        <div class="relative h-64 bg-gradient-to-br from-hollywood-700 to-hollywood-900 flex items-center justify-center overflow-hidden">
+                            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1925&auto=format&fit=crop')] bg-cover bg-center opacity-40"></div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-hollywood-900 to-transparent"></div>
+                            <div class="exclusive-stamp">NewsAPI Live</div>
+                            <div class="relative z-10 text-center p-6">
+                                <i class="fas fa-satellite-dish text-5xl text-hollywood-gold/80 mb-4 animate-pulse"></i>
+                                <h3 class="font-serif text-2xl font-bold text-white">Real-Time Intel</h3>
+                                <p class="text-hollywood-gold-light mt-2">NewsAPI + RSS Aggregation</p>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="insider-tag px-3 py-1 rounded-full text-xs font-bold">API INTEGRATED</span>
+                                <span class="text-xs text-gray-500" id="heroTime">Just now</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2">NewsAPI Key Active</h3>
+                            <p class="text-gray-400 text-sm mb-4">Pulling live entertainment headlines from NewsAPI.org, cross-referenced with Variety, THR, Deadline, The Wrap, and IndieWire RSS feeds.</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                    <span class="text-xs text-gray-400">All systems operational</span>
+                                </div>
+                                <span class="text-hollywood-gold text-sm font-semibold">Multi-source verified</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Top AdSense Banner -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="adsense-box rounded-lg p-4 text-center">
+            <p class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Advertisement</p>
+            <ins class="adsbygoogle" style="display:block; height:90px;" data-ad-client="ca-pub-9732868041262758" data-ad-slot="1234567890" data-ad-format="auto" data-full-width-responsive="true"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="news">
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Live News Feed -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Section Header -->
+                <div class="flex items-center justify-between border-b border-hollywood-gold/20 pb-4">
+                    <div>
+                        <h2 class="font-serif text-3xl font-bold text-white">Live News Wire</h2>
+                        <p class="text-sm text-gray-500 mt-1">Powered by <span class="text-hollywood-gold">NewsAPI</span> + <span class="text-hollywood-gold">Variety • THR • Deadline • The Wrap • IndieWire</span></p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="filterNews('all')" class="filter-btn active px-4 py-2 rounded-lg text-sm font-medium bg-hollywood-gold/20 text-hollywood-gold border border-hollywood-gold/30" data-filter="all">All</button>
+                        <button onclick="filterNews('exclusive')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white border border-gray-700" data-filter="exclusive">Exclusive</button>
+                        <button onclick="filterNews('boxoffice')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white border border-gray-700" data-filter="boxoffice">Box Office</button>
+                        <button onclick="filterNews('casting')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white border border-gray-700" data-filter="casting">Casting</button>
+                    </div>
+                </div>
+
+                <!-- News Feed Container -->
+                <div id="newsFeed" class="space-y-6">
+                    <div class="loading-skeleton h-48 rounded-xl"></div>
+                    <div class="loading-skeleton h-48 rounded-xl"></div>
+                    <div class="loading-skeleton h-48 rounded-xl"></div>
+                </div>
+
+                <!-- Load More -->
+                <div class="text-center pt-4">
+                    <button onclick="loadMoreNews()" class="px-8 py-3 border border-hollywood-gold/30 text-hollywood-gold rounded-lg font-semibold hover:bg-hollywood-gold/10 transition-all">
+                        Load More Intel <i class="fas fa-chevron-down ml-2"></i>
+                    </button>
+                </div>
+
+                <!-- Mid-Content Ad -->
+                <div class="adsense-box rounded-lg p-4 text-center my-8">
+                    <p class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Sponsored Content</p>
+                    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9732868041262758" data-ad-slot="2345678901" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                </div>
+
+                <!-- Insider Analysis Section (PAYWALL PROTECTED) -->
+                <div id="insider" class="glass-panel rounded-2xl p-8 border border-hollywood-gold/10 relative overflow-hidden">
+                    <!-- Paywall Overlay -->
+                    <div id="analysisPaywall" class="paywall-overlay absolute inset-0 z-20 flex flex-col items-center justify-center rounded-2xl hidden">
+                        <div class="text-center p-8">
+                            <i class="fas fa-lock text-5xl text-hollywood-gold mb-4"></i>
+                            <h3 class="font-serif text-2xl font-bold text-white mb-2">Premium Intelligence</h3>
+                            <p class="text-gray-400 mb-6 max-w-md">Deep dive analysis, financial reports, and exclusive casting room intel reserved for premium members.</p>
+                            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                <button onclick="togglePremiumModal()" class="px-6 py-3 premium-badge text-hollywood-900 rounded-lg font-bold hover:shadow-lg hover:shadow-hollywood-gold/30 transition-all">
+                                    <i class="fas fa-crown mr-2"></i>Subscribe Now
+                                </button>
+                                <button onclick="toggleAuthModal()" class="px-6 py-3 border border-hollywood-gold/30 text-hollywood-gold rounded-lg font-semibold hover:bg-hollywood-gold/10 transition-all">
+                                    Sign In
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="analysisContent" class="relative z-10">
+                        <div class="flex items-center space-x-3 mb-6">
+                            <div class="w-10 h-10 rounded-full bg-hollywood-gold/20 flex items-center justify-center">
+                                <i class="fas fa-microscope text-hollywood-gold"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-serif text-2xl font-bold text-white">Deep Dive Analysis</h2>
+                                <p class="text-sm text-gray-500">Premium industry intelligence reports</p>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-hollywood-800/50 rounded-xl p-6 border border-hollywood-gold/5 hover:border-hollywood-gold/20 transition-all cursor-pointer group">
+                                <div class="flex justify-between items-start mb-4">
+                                    <span class="insider-tag px-3 py-1 rounded-full text-xs font-bold">ANALYSIS</span>
+                                    <i class="fas fa-crown text-hollywood-gold"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-hollywood-gold transition-colors">The Streaming Wars: Who Will Survive 2026?</h3>
+                                <p class="text-sm text-gray-400 mb-4">Comprehensive breakdown of Netflix, Disney+, Max, and Paramount+ financials. Subscriber retention rates analyzed.</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">12 min read</span>
+                                    <span class="text-hollywood-gold text-sm font-semibold">Premium</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-hollywood-800/50 rounded-xl p-6 border border-hollywood-gold/5 hover:border-hollywood-gold/20 transition-all cursor-pointer group">
+                                <div class="flex justify-between items-start mb-4">
+                                    <span class="insider-tag px-3 py-1 rounded-full text-xs font-bold">REPORT</span>
+                                    <i class="fas fa-crown text-hollywood-gold"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-hollywood-gold transition-colors">AI in Hollywood: Threat or Tool?</h3>
+                                <p class="text-sm text-gray-400 mb-4">How major studios are secretly using generative AI for script development and post-production cost cutting.</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">8 min read</span>
+                                    <span class="text-hollywood-gold text-sm font-semibold">Premium</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-hollywood-800/50 rounded-xl p-6 border border-hollywood-gold/5 hover:border-hollywood-gold/20 transition-all cursor-pointer group">
+                                <div class="flex justify-between items-start mb-4">
+                                    <span class="insider-tag px-3 py-1 rounded-full text-xs font-bold">FINANCIAL</span>
+                                    <i class="fas fa-crown text-hollywood-gold"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-hollywood-gold transition-colors">Q2 2026 Studio Earnings Preview</h3>
+                                <p class="text-sm text-gray-400 mb-4">Wall Street expectations vs. insider projections. Which studios are overperforming and why.</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">15 min read</span>
+                                    <span class="text-hollywood-gold text-sm font-semibold">Premium</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-hollywood-800/50 rounded-xl p-6 border border-hollywood-gold/5 hover:border-hollywood-gold/20 transition-all cursor-pointer group">
+                                <div class="flex justify-between items-start mb-4">
+                                    <span class="insider-tag px-3 py-1 rounded-full text-xs font-bold">EXCLUSIVE</span>
+                                    <i class="fas fa-crown text-hollywood-gold"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-hollywood-gold transition-colors">The Next Bond: Inside the Casting Room</h3>
+                                <p class="text-sm text-gray-400 mb-4">Names on the shortlist, audition tapes reviewed, and Barbara Broccoli's final decision timeline.</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">10 min read</span>
+                                    <span class="text-hollywood-gold text-sm font-semibold">Premium</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Sidebar -->
+            <div class="space-y-8">
+                
+                <!-- Premium CTA (Dynamic based on auth state) -->
+                <div id="premiumCTA" class="glass-panel rounded-2xl p-6 border border-hollywood-gold/30 bg-gradient-to-b from-hollywood-gold/5 to-transparent">
+                    <div class="text-center mb-6">
+                        <i class="fas fa-crown text-4xl text-hollywood-gold mb-3"></i>
+                        <h3 class="font-serif text-xl font-bold text-white mb-2">Join The Inner Circle</h3>
+                        <p class="text-sm text-gray-400">Get exclusive leaks, early box office data, and insider casting news before anyone else.</p>
+                    </div>
+                    <ul class="space-y-3 mb-6 text-sm text-gray-300">
+                        <li class="flex items-center"><i class="fas fa-check text-hollywood-gold mr-3"></i> Daily insider briefings</li>
+                        <li class="flex items-center"><i class="fas fa-check text-hollywood-gold mr-3"></i> Ad-free experience</li>
+                        <li class="flex items-center"><i class="fas fa-check text-hollywood-gold mr-3"></i> Exclusive Discord access</li>
+                        <li class="flex items-center"><i class="fas fa-check text-hollywood-gold mr-3"></i> Weekly studio financial reports</li>
+                        <li class="flex items-center"><i class="fas fa-check text-hollywood-gold mr-3"></i> Direct Q&A with industry vets</li>
+                    </ul>
+                    <button onclick="startCheckout('monthly')" class="w-full py-3 premium-badge text-hollywood-900 rounded-lg font-bold hover:shadow-lg hover:shadow-hollywood-gold/30 transition-all mb-3">
+                        Subscribe $9.99/mo
+                    </button>
+                    <button onclick="startCheckout('annual')" class="w-full py-2 border border-hollywood-gold/30 text-hollywood-gold rounded-lg text-sm font-semibold hover:bg-hollywood-gold/10 transition-all">
+                        Annual Save 40% — $5.99/mo
+                    </button>
+                    <p class="text-center text-xs text-gray-500 mt-3">Cancel anytime. 7-day free trial.</p>
+                </div>
+
+                <!-- Already Premium State (Hidden by default) -->
+                <div id="premiumActive" class="hidden glass-panel rounded-2xl p-6 border border-green-500/30 bg-gradient-to-b from-green-500/5 to-transparent">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-3 border border-green-500/30">
+                            <i class="fas fa-crown text-3xl text-green-400"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-white mb-1">Premium Active</h3>
+                        <p class="text-sm text-green-400">You have full access</p>
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-300 mb-4">
+                        <div class="flex justify-between"><span>Plan</span><span class="text-white font-semibold" id="activePlan">Monthly</span></div>
+                        <div class="flex justify-between"><span>Renews</span><span class="text-white font-semibold" id="renewDate">—</span></div>
+                    </div>
+                    <button onclick="openBillingPortal()" class="w-full py-2 border border-green-500/30 text-green-400 rounded-lg text-sm font-semibold hover:bg-green-500/10 transition-all">
+                        <i class="fas fa-cog mr-2"></i>Manage Subscription
+                    </button>
+                </div>
+
+                <!-- LIVE Box Office Widget -->
+                <div id="boxoffice" class="glass-panel rounded-2xl p-6 border border-hollywood-gold/10">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-serif text-xl font-bold text-white">Box Office Live</h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            <span class="text-xs text-green-400">BOM Connected</span>
+                        </div>
+                    </div>
+                    <div id="boxOfficeWidget" class="space-y-4">
+                        <div class="loading-skeleton h-12 rounded-lg"></div>
+                        <div class="loading-skeleton h-12 rounded-lg"></div>
+                        <div class="loading-skeleton h-12 rounded-lg"></div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-hollywood-gold/10">
+                        <p class="text-xs text-gray-500 text-center">Source: Box Office Mojo • Updated hourly</p>
+                    </div>
+                </div>
+
+                <!-- Sidebar Ad -->
+                <div class="adsense-box rounded-lg p-4 text-center">
+                    <p class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Advertisement</p>
+                    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9732868041262758" data-ad-slot="3456789012" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                </div>
+
+                <!-- Release Calendar -->
+                <div id="calendar" class="glass-panel rounded-2xl p-6 border border-hollywood-gold/10">
+                    <h3 class="font-serif text-xl font-bold text-white mb-6">Coming Soon</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-4 pb-4 border-b border-hollywood-gold/5">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-hollywood-800 flex flex-col items-center justify-center border border-hollywood-gold/20">
+                                <span class="text-xs text-hollywood-gold font-bold">MAY</span>
+                                <span class="text-lg font-bold text-white">16</span>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Thunderbolts*</h4>
+                                <p class="text-xs text-gray-500">Marvel Studios</p>
+                                <div class="flex items-center mt-1">
+                                    <i class="fas fa-star text-hollywood-gold text-xs mr-1"></i>
+                                    <span class="text-xs text-gray-400">Tracking: $85M OW</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4 pb-4 border-b border-hollywood-gold/5">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-hollywood-800 flex flex-col items-center justify-center border border-hollywood-gold/20">
+                                <span class="text-xs text-hollywood-gold font-bold">MAY</span>
+                                <span class="text-lg font-bold text-white">23</span>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Mission: Impossible 8</h4>
+                                <p class="text-xs text-gray-500">Paramount</p>
+                                <div class="flex items-center mt-1">
+                                    <i class="fas fa-star text-hollywood-gold text-xs mr-1"></i>
+                                    <span class="text-xs text-gray-400">Tracking: $120M OW</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4 pb-4 border-b border-hollywood-gold/5">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-hollywood-800 flex flex-col items-center justify-center border border-hollywood-gold/20">
+                                <span class="text-xs text-hollywood-gold font-bold">JUN</span>
+                                <span class="text-lg font-bold text-white">06</span>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Ballerina</h4>
+                                <p class="text-xs text-gray-500">Lionsgate</p>
+                                <div class="flex items-center mt-1">
+                                    <i class="fas fa-star text-hollywood-gold text-xs mr-1"></i>
+                                    <span class="text-xs text-gray-400">Tracking: $45M OW</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-hollywood-800 flex flex-col items-center justify-center border border-hollywood-gold/20">
+                                <span class="text-xs text-hollywood-gold font-bold">JUN</span>
+                                <span class="text-lg font-bold text-white">13</span>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">How to Train Your Dragon</h4>
+                                <p class="text-xs text-gray-500">Universal</p>
+                                <div class="flex items-center mt-1">
+                                    <i class="fas fa-star text-hollywood-gold text-xs mr-1"></i>
+                                    <span class="text-xs text-gray-400">Tracking: $95M OW</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trending Topics -->
+                <div class="glass-panel rounded-2xl p-6 border border-hollywood-gold/10">
+                    <h3 class="font-serif text-xl font-bold text-white mb-4">Trending Now</h3>
+                    <div class="flex flex-wrap gap-2" id="trendingTopics">
+                        <span class="px-3 py-1.5 bg-hollywood-800 text-hollywood-gold text-xs rounded-full border border-hollywood-gold/20 cursor-pointer hover:bg-hollywood-gold/20 transition-colors">#MarvelSecretWars</span>
+                        <span class="px-3 py-1.5 bg-hollywood-800 text-hollywood-gold text-xs rounded-full border border-hollywood-gold/20 cursor-pointer hover:bg-hollywood-gold/20 transition-colors">#NolanNewDeal</span>
+                        <span class="px-3 py-1.5 bg-hollywood-800 text-hollywood-gold text-xs rounded-full border border-hollywood-gold/20 cursor-pointer hover:bg-hollywood-gold/20 transition-colors">#SAGAFTRA</span>
+                        <span class="px-3 py-1.5 bg-hollywood-800 text-hollywood-gold text-xs rounded-full border border-hollywood-gold/20 cursor-pointer hover:bg-hollywood-gold/20 transition-colors">#Avatar4</span>
+                        <span class="px-3 py-1.5 bg-hollywood-800 text-hollywood-gold text-xs rounded-full border border-hollywood-gold/20 cursor-pointer hover:bg-hollywood-gold/20 transition-colors">#NetflixPriceHike</span>
+                        <span class="px-3 py-1.5 bg-hollywood-800 text-hollywood-gold text-xs rounded-full border border-hollywood-gold/20 cursor-pointer hover:bg-hollywood-gold/20 transition-colors">#Bond26</span>
+                        <span class="px-3 py-1.5 bg-hollywood-800 text-hollywood-gold text-xs rounded-full border border-hollywood-gold/20 cursor-pointer hover:bg-hollywood-gold/20 transition-colors">#DunePartThree</span>
+                        <span class="px-3 py-1.5 bg-hollywood-800 text-hollywood-gold text-xs rounded-full border border-hollywood-gold/20 cursor-pointer hover:bg-hollywood-gold/20 transition-colors">#WBDMerger</span>
+                    </div>
+                </div>
+
+                <!-- Newsletter -->
+                <div class="glass-panel rounded-2xl p-6 border border-hollywood-gold/10 bg-gradient-to-b from-hollywood-800 to-hollywood-900">
+                    <h3 class="font-serif text-lg font-bold text-white mb-2">The Daily Briefing</h3>
+                    <p class="text-xs text-gray-400 mb-4">Get the most important insider news delivered to your inbox every morning.</p>
+                    <form onsubmit="handleNewsletter(event)" class="space-y-3">
+                        <input type="email" placeholder="your@email.com" required 
+                               class="w-full px-4 py-2 bg-hollywood-900 border border-hollywood-gold/20 rounded-lg text-white text-sm focus:outline-none focus:border-hollywood-gold transition-colors">
+                        <button type="submit" class="w-full py-2 bg-hollywood-gold/20 text-hollywood-gold border border-hollywood-gold/30 rounded-lg text-sm font-semibold hover:bg-hollywood-gold/30 transition-all">
+                            Subscribe Free
+                        </button>
+                    </form>
+                    <p class="text-xs text-gray-600 mt-3 text-center">Join 50,000+ industry professionals</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Ad Banner -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div class="adsense-box rounded-lg p-4 text-center">
+            <p class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Advertisement</p>
+            <ins class="adsbygoogle" style="display:block; height:250px;" data-ad-client="ca-pub-9732868041262758" data-ad-slot="4567890123" data-ad-format="auto" data-full-width-responsive="true"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-hollywood-gold/10 bg-hollywood-900 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-film text-hollywood-gold text-xl"></i>
+                        <span class="font-serif text-lg font-bold text-white">JOLLYWOOD INSIDER</span>
+                    </div>
+                    <p class="text-sm text-gray-500 leading-relaxed">
+                        The industry's most trusted source for verified insider news. Powered by NewsAPI, live RSS aggregation, and Box Office Mojo data.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Data Sources</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><i class="fas fa-bolt text-hollywood-gold mr-2"></i>NewsAPI.org</li>
+                        <li><i class="fas fa-rss text-hollywood-gold mr-2"></i>Variety</li>
+                        <li><i class="fas fa-rss text-hollywood-gold mr-2"></i>The Hollywood Reporter</li>
+                        <li><i class="fas fa-rss text-hollywood-gold mr-2"></i>Deadline</li>
+                        <li><i class="fas fa-rss text-hollywood-gold mr-2"></i>Box Office Mojo</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-hollywood-gold transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-hollywood-gold transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-hollywood-gold transition-colors">Advertise</a></li>
+                        <li><a href="#" class="hover:text-hollywood-gold transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-hollywood-gold transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-hollywood-gold transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-hollywood-gold transition-colors">Cookie Policy</a></li>
+                        <li><a href="#" class="hover:text-hollywood-gold transition-colors">DMCA</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-hollywood-gold/10 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-xs text-gray-600">© 2026 Jollywood Insider. NewsAPI data used under license. All rights reserved.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-500 hover:text-hollywood-gold transition-colors"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-500 hover:text-hollywood-gold transition-colors"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-gray-500 hover:text-hollywood-gold transition-colors"><i class="fab fa-youtube"></i></a>
+                    <a href="#" class="text-gray-500 hover:text-hollywood-gold transition-colors"><i class="fab fa-discord"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Auth Modal (Login/Signup) -->
+    <div id="authModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0" onclick="toggleAuthModal()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-hollywood-800 rounded-2xl max-w-md w-full border border-hollywood-gold/30 shadow-2xl shadow-hollywood-gold/20 overflow-hidden">
+                <div class="relative p-8">
+                    <button onclick="toggleAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                    
+                    <div class="text-center mb-6">
+                        <i class="fas fa-film text-4xl text-hollywood-gold mb-3"></i>
+                        <h2 class="font-serif text-2xl font-bold text-white" id="authTitle">Welcome Back</h2>
+                        <p class="text-sm text-gray-400 mt-1">Sign in to access premium intel</p>
+                    </div>
+
+                    <!-- Auth Tabs -->
+                    <div class="flex mb-6 border-b border-hollywood-gold/10">
+                        <button onclick="switchAuthTab('login')" id="loginTab" class="flex-1 pb-2 text-sm font-semibold text-hollywood-gold border-b-2 border-hollywood-gold">Sign In</button>
+                        <button onclick="switchAuthTab('signup')" id="signupTab" class="flex-1 pb-2 text-sm font-medium text-gray-500 hover:text-gray-300">Create Account</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Email</label>
+                            <input type="email" id="loginEmail" required class="w-full px-4 py-2 bg-hollywood-900 border border-hollywood-gold/20 rounded-lg text-white text-sm focus:outline-none focus:border-hollywood-gold transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Password</label>
+                            <input type="password" id="loginPassword" required class="w-full px-4 py-2 bg-hollywood-900 border border-hollywood-gold/20 rounded-lg text-white text-sm focus:outline-none focus:border-hollywood-gold transition-colors">
+                        </div>
+                        <button type="submit" id="loginBtn" class="w-full py-3 premium-badge text-hollywood-900 rounded-lg font-bold hover:shadow-lg transition-all">
+                            Sign In
+                        </button>
+                    </form>
+
+                    <!-- Signup Form -->
+                    <form id="signupForm" onsubmit="handleSignup(event)" class="space-y-4 hidden">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Email</label>
+                            <input type="email" id="signupEmail" required class="w-full px-4 py-2 bg-hollywood-900 border border-hollywood-gold/20 rounded-lg text-white text-sm focus:outline-none focus:border-hollywood-gold transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Password</label>
+                            <input type="password" id="signupPassword" required minlength="6" class="w-full px-4 py-2 bg-hollywood-900 border border-hollywood-gold/20 rounded-lg text-white text-sm focus:outline-none focus:border-hollywood-gold transition-colors">
+                            <p class="text-xs text-gray-600 mt-1">Min 6 characters</p>
+                        </div>
+                        <button type="submit" id="signupBtn" class="w-full py-3 premium-badge text-hollywood-900 rounded-lg font-bold hover:shadow-lg transition-all">
+                            Create Free Account
+                        </button>
+                    </form>
+
+                    <div class="relative my-6">
+                        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-hollywood-gold/10"></div></div>
+                        <div class="relative flex justify-center text-xs"><span class="px-2 bg-hollywood-800 text-gray-500">or</span></div>
+                    </div>
+
+                    <button onclick="signInWithGoogle()" class="w-full py-2.5 bg-hollywood-900 border border-hollywood-gold/20 rounded-lg text-white text-sm font-medium hover:bg-hollywood-700 transition-all flex items-center justify-center">
+                        <i class="fab fa-google text-red-400 mr-2"></i> Continue with Google
+                    </button>
+
+                    <p id="authError" class="text-xs text-red-400 mt-4 text-center hidden"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Modal -->
+    <div id="premiumModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0" onclick="togglePremiumModal()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-hollywood-800 rounded-2xl max-w-lg w-full border border-hollywood-gold/30 shadow-2xl shadow-hollywood-gold/20 transform transition-all scale-100 overflow-hidden">
+                <div class="relative p-8">
+                    <button onclick="togglePremiumModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                    
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 rounded-full bg-hollywood-gold/20 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-crown text-3xl text-hollywood-gold"></i>
+                        </div>
+                        <h2 class="font-serif text-3xl font-bold text-white mb-2">Go Premium</h2>
+                        <p class="text-gray-400">Unlock the full power of Jollywood Insider</p>
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <div onclick="selectPlan('monthly')" id="planMonthly" class="flex items-center p-4 bg-hollywood-900/50 rounded-lg border border-hollywood-gold/10 cursor-pointer hover:border-hollywood-gold/30 transition-all">
+                            <div class="flex-1">
+                                <h3 class="text-white font-semibold">Monthly</h3>
+                                <p class="text-sm text-gray-500">Full access, cancel anytime</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-2xl font-bold text-hollywood-gold">$9.99</span>
+                                <span class="text-xs text-gray-500 block">/month</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPlan('annual')" id="planAnnual" class="flex items-center p-4 bg-hollywood-gold/10 rounded-lg border border-hollywood-gold/30 relative cursor-pointer">
+                            <div class="absolute -top-3 left-4 px-2 py-0.5 bg-hollywood-gold text-hollywood-900 text-xs font-bold rounded">BEST VALUE</div>
+                            <div class="flex-1">
+                                <h3 class="text-white font-semibold">Annual</h3>
+                                <p class="text-sm text-gray-500">Save 40% with yearly billing</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-2xl font-bold text-hollywood-gold">$5.99</span>
+                                <span class="text-xs text-gray-500 block">/month</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="confirmCheckout()" id="checkoutBtn" class="w-full py-4 premium-badge text-hollywood-900 rounded-lg font-bold text-lg hover:shadow-xl hover:shadow-hollywood-gold/30 transition-all mb-4">
+                        Start Free Trial
+                    </button>
+                    <p class="text-center text-xs text-gray-500">7 days free. No credit card required. Cancel anytime.</p>
+                </div>
+                <div class="bg-hollywood-900/50 p-4 text-center border-t border-hollywood-gold/10">
+                    <p class="text-xs text-gray-500">Already subscribed? <a href="#" onclick="toggleAuthModal(); togglePremiumModal(); return false;" class="text-hollywood-gold hover:underline">Sign in here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        
+        // REPLACE THESE WITH YOUR ACTUAL KEYS
+        const FIREBASE_CONFIG = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const STRIPE_PUBLISHABLE_KEY = 'pk_test_YOUR_STRIPE_PUBLISHABLE_KEY';
+        const BACKEND_URL = 'https://your-server.com'; // Your Node.js server URL
+
+        // Stripe Price IDs from your Stripe Dashboard
+        const STRIPE_PRICES = {
+            monthly: 'price_YOUR_MONTHLY_PRICE_ID',
+            annual: 'price_YOUR_ANNUAL_PRICE_ID'
+        };
+
+        // ==================== INITIALIZATION ====================
+        
+        // Initialize Firebase
+        firebase.initializeApp(FIREBASE_CONFIG);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Initialize Stripe
+        const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+
+        // Global State
+        let currentUser = null;
+        let userSubscription = null;
+        let selectedPlan = 'annual';
+        let currentNewsData = [];
+        let currentBoxOfficeData = [];
+
+        // ==================== AUTH STATE MANAGEMENT ====================
+
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            if (user) {
+                // User is signed in
+                document.getElementById('authLoggedOut').classList.add('hidden');
+                document.getElementById('authLoggedIn').classList.remove('hidden');
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userMenuEmail').textContent = user.email;
+                
+                // Check subscription in Firestore
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    userSubscription = userDoc.data();
+                    updatePremiumUI();
+                } else {
+                    // Create user doc if doesn't exist
+                    await db.collection('users').doc(user.uid).set({
+                        email: user.email,
+                        createdAt: new Date().toISOString(),
+                        subscriptionStatus: 'inactive'
+                    });
+                    userSubscription = { subscriptionStatus: 'inactive' };
+                    updatePremiumUI();
+                }
+            } else {
+                // User is signed out
+                document.getElementById('authLoggedOut').classList.remove('hidden');
+                document.getElementById('authLoggedIn').classList.add('hidden');
+                document.getElementById('premiumBadge').classList.add('hidden');
+                userSubscription = null;
+                updatePremiumUI();
+            }
+        });
+
+        function updatePremiumUI() {
+            const isPremium = userSubscription && userSubscription.subscriptionStatus === 'active';
+            
+            // Nav badge
+            const badge = document.getElementById('premiumBadge');
+            if (isPremium) badge.classList.remove('hidden');
+            else badge.classList.add('hidden');
+            
+            // Billing portal button
+            const portalBtn = document.getElementById('billingPortalBtn');
+            if (isPremium) portalBtn.classList.remove('hidden');
+            else portalBtn.classList.add('hidden');
+            
+            // Sidebar CTA vs Active
+            const cta = document.getElementById('premiumCTA');
+            const active = document.getElementById('premiumActive');
+            if (isPremium) {
+                cta.classList.add('hidden');
+                active.classList.remove('hidden');
+                document.getElementById('activePlan').textContent = userSubscription.plan || 'Monthly';
+                if (userSubscription.currentPeriodEnd) {
+                    const date = new Date(userSubscription.currentPeriodEnd);
+                    document.getElementById('renewDate').textContent = date.toLocaleDateString();
+                }
+            } else {
+                cta.classList.remove('hidden');
+                active.classList.add('hidden');
+            }
+            
+            // Analysis paywall
+            const paywall = document.getElementById('analysisPaywall');
+            const content = document.getElementById('analysisContent');
+            if (isPremium) {
+                paywall.classList.add('hidden');
+                content.classList.remove('paywall-blur');
+            } else {
+                paywall.classList.remove('hidden');
+                content.classList.add('paywall-blur');
+            }
+        }
+
+        // ==================== AUTH ACTIONS ====================
+
+        function toggleAuthModal() {
+            const modal = document.getElementById('authModal');
+            modal.classList.toggle('hidden');
+            document.body.style.overflow = modal.classList.contains('hidden') ? '' : 'hidden';
+            document.getElementById('authError').classList.add('hidden');
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const loginTab = document.getElementById('loginTab');
+            const signupTab = document.getElementById('signupTab');
+            const authTitle = document.getElementById('authTitle');
+            
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                loginTab.classList.add('text-hollywood-gold', 'border-b-2', 'border-hollywood-gold');
+                loginTab.classList.remove('text-gray-500');
+                signupTab.classList.remove('text-hollywood-gold', 'border-b-2', 'border-hollywood-gold');
+                signupTab.classList.add('text-gray-500');
+                authTitle.textContent = 'Welcome Back';
+            } else {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                signupTab.classList.add('text-hollywood-gold', 'border-b-2', 'border-hollywood-gold');
+                signupTab.classList.remove('text-gray-500');
+                loginTab.classList.remove('text-hollywood-gold', 'border-b-2', 'border-hollywood-gold');
+                loginTab.classList.add('text-gray-500');
+                authTitle.textContent = 'Create Account';
+            }
+            document.getElementById('authError').classList.add('hidden');
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const errorEl = document.getElementById('authError');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            try {
+                await auth.signInWithEmailAndPassword(
+                    document.getElementById('loginEmail').value,
+                    document.getElementById('loginPassword').value
+                );
+                toggleAuthModal();
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.classList.remove('hidden');
+            } finally {
+                btn.textContent = 'Sign In';
+            }
+        }
+
+        async function handleSignup(e) {
+            e.preventDefault();
+            const btn = document.getElementById('signupBtn');
+            const errorEl = document.getElementById('authError');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            try {
+                await auth.createUserWithEmailAndPassword(
+                    document.getElementById('signupEmail').value,
+                    document.getElementById('signupPassword').value
+                );
+                toggleAuthModal();
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.classList.remove('hidden');
+            } finally {
+                btn.textContent = 'Create Free Account';
+            }
+        }
+
+        async function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                await auth.signInWithPopup(provider);
+                toggleAuthModal();
+            } catch (err) {
+                const errorEl = document.getElementById('authError');
+                errorEl.textContent = err.message;
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            auth.signOut();
+            toggleUserMenu();
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('userMenu').classList.toggle('hidden');
+        }
+
+        // Close user menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const container = document.getElementById('userMenuContainer');
+            const menu = document.getElementById('userMenu');
+            if (container && !container.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // ==================== STRIPE CHECKOUT ====================
+
+        function togglePremiumModal() {
+            const modal = document.getElementById('premiumModal');
+            modal.classList.toggle('hidden');
+            document.body.style.overflow = modal.classList.contains('hidden') ? '' : 'hidden';
+        }
+
+        function selectPlan(plan) {
+            selectedPlan = plan;
+            const monthly = document.getElementById('planMonthly');
+            const annual = document.getElementById('planAnnual');
+            
+            if (plan === 'monthly') {
+                monthly.classList.add('border-hollywood-gold/30', 'bg-hollywood-gold/10');
+                monthly.classList.remove('border-hollywood-gold/10', 'bg-hollywood-900/50');
+                annual.classList.remove('border-hollywood-gold/30', 'bg-hollywood-gold/10');
+                annual.classList.add('border-hollywood-gold/10', 'bg-hollywood-900/50');
+            } else {
+                annual.classList.add('border-hollywood-gold/30', 'bg-hollywood-gold/10');
+                annual.classList.remove('border-hollywood-gold/10', 'bg-hollywood-900/50');
+                monthly.classList.remove('border-hollywood-gold/30', 'bg-hollywood-gold/10');
+                monthly.classList.add('border-hollywood-gold/10', 'bg-hollywood-900/50');
+            }
+        }
+
+        async function startCheckout(plan) {
+            if (!currentUser) {
+                toggleAuthModal();
+                return;
+            }
+            selectedPlan = plan;
+            await confirmCheckout();
+        }
+
+        async function confirmCheckout() {
+            if (!currentUser) {
+                togglePremiumModal();
+                toggleAuthModal();
+                return;
+            }
+            
+            const btn = document.getElementById('checkoutBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Redirecting...';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/create-checkout-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        priceId: STRIPE_PRICES[selectedPlan],
+                        userId: currentUser.uid,
+                        userEmail: currentUser.email
+                    })
+                });
+                
+                const session = await response.json();
+                if (session.url) {
+                    window.location.href = session.url;
+                } else {
+                    throw new Error('No checkout URL returned');
+                }
+            } catch (err) {
+                console.error('Checkout error:', err);
+                btn.textContent = 'Error. Try again.';
+                setTimeout(() => btn.textContent = 'Start Free Trial', 2000);
+            }
+        }
+
+        async function openBillingPortal() {
+            if (!userSubscription || !userSubscription.stripeCustomerId) return;
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/create-portal-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customerId: userSubscription.stripeCustomerId })
+                });
+                const session = await response.json();
+                if (session.url) window.location.href = session.url;
+            } catch (err) {
+                console.error('Portal error:', err);
+                alert('Could not open billing portal. Please try again.');
+            }
+        }
+
+        // ==================== NEWS & BOX OFFICE (UNCHANGED) ====================
+
+        const CONFIG = {
+            useLocalData: true,
+            localEndpoints: { boxoffice: './boxoffice.json', news: './rss_news.json' },
+            rss2jsonApi: 'https://api.rss2json.com/v1/api.json',
+            rssFeeds: {
+                variety: 'https://variety.com/feed/',
+                thr: 'https://www.hollywoodreporter.com/feed/',
+                deadline: 'https://deadline.com/feed/',
+                wrap: 'https://www.thewrap.com/feed/',
+                indiewire: 'https://www.indiewire.com/feed/'
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllData();
+            updateTimestamp();
+            setInterval(refreshAllData, 1800000);
+        });
+
+        async function loadAllData() {
+            await Promise.all([loadBoxOfficeData(), loadNewsData()]);
+            updateTimestamp();
+        }
+
+        async function refreshAllData() {
+            const icon = document.getElementById('refreshIcon');
+            icon.classList.add('fa-spin');
+            await loadAllData();
+            setTimeout(() => icon.classList.remove('fa-spin'), 1000);
+        }
+
+        async function loadBoxOfficeData() {
+            try {
+                let data;
+                if (CONFIG.useLocalData) {
+                    try {
+                        const resp = await fetch(CONFIG.localEndpoints.boxoffice + '?t=' + Date.now());
+                        if (resp.ok) data = await resp.json();
+                    } catch(e) {}
+                }
+                if (!data || !data.chart) {
+                    data = {
+                        updated: new Date().toISOString(),
+                        source: 'Box Office Mojo (Fallback)',
+                        chart: [
+                            {"rank": "1", "title": "Thunderbolts*", "gross": "$86.1M", "change": "New", "weeks": "1", "studio": "Disney"},
+                            {"rank": "2", "title": "Sinners", "gross": "$30.4M", "change": "-48%", "weeks": "2", "studio": "WB"},
+                            {"rank": "3", "title": "A Minecraft Movie", "gross": "$17.8M", "change": "-42%", "weeks": "4", "studio": "WB"},
+                            {"rank": "4", "title": "The Amateur", "gross": "$12.1M", "change": "New", "weeks": "1", "studio": "Disney"},
+                            {"rank": "5", "title": "Drop", "gross": "$4.2M", "change": "-55%", "weeks": "3", "studio": "Universal"},
+                            {"rank": "6", "title": "The King of Kings", "gross": "$3.8M", "change": "-38%", "weeks": "3", "studio": "Angel"},
+                            {"rank": "7", "title": "One And Only", "gross": "$2.9M", "change": "New", "weeks": "1", "studio": "Sony"},
+                            {"rank": "8", "title": "The Accountant 2", "gross": "$2.4M", "change": "-62%", "weeks": "2", "studio": "MGM"},
+                            {"rank": "9", "title": "Until Dawn", "gross": "$1.8M", "change": "-67%", "weeks": "2", "studio": "Sony"},
+                            {"rank": "10", "title": "Star Wars: Revenge of the Sith", "gross": "$1.5M", "change": "Re-release", "weeks": "1", "studio": "Disney"}
+                        ]
+                    };
+                }
+                currentBoxOfficeData = data.chart;
+                renderBoxOffice(data.chart);
+                updateTicker(data.chart);
+            } catch (error) {
+                renderBoxOffice([]);
+            }
+        }
+
+        async function loadNewsData() {
+            try {
+                let articles = [];
+                if (CONFIG.useLocalData) {
+                    try {
+                        const resp = await fetch(CONFIG.localEndpoints.news + '?t=' + Date.now());
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            articles = data.articles || [];
+                        }
+                    } catch(e) {}
+                }
+                if (articles.length === 0) {
+                    const feedPromises = Object.entries(CONFIG.rssFeeds).map(async ([source, url]) => {
+                        try {
+                            const apiUrl = `${CONFIG.rss2jsonApi}?rss_url=${encodeURIComponent(url)}&count=5`;
+                            const resp = await fetch(apiUrl);
+                            const data = await resp.json();
+                            if (data.items) {
+                                return data.items.map(item => ({
+                                    id: `${source}-${Math.random().toString(36).substr(2, 9)}`,
+                                    source: source.toUpperCase(),
+                                    title: item.title,
+                                    excerpt: item.description ? item.description.replace(/<[^>]*>/g, '').substring(0, 200) + '...' : '',
+                                    url: item.link,
+                                    published: item.pubDate,
+                                    type: categorizeNews(item.title),
+                                    image: getImageForCategory(categorizeNews(item.title)),
+                                    author: 'Staff'
+                                }));
+                            }
+                        } catch(e) { return []; }
+                    });
+                    const results = await Promise.all(feedPromises);
+                    articles = results.flat();
+                }
+                articles.sort((a, b) => new Date(b.published) - new Date(a.published));
+                currentNewsData = articles;
+                renderNews('all');
+            } catch (error) {
+                currentNewsData = getFallbackNews();
+                renderNews('all');
+            }
+        }
+
+        function categorizeNews(title) {
+            const t = title.toLowerCase();
+            if (t.match(/cast|casting|signs|joins|star|set to play|role|portray|actor|actress/)) return 'casting';
+            if (t.match(/box office|gross|ticket|opening|weekend|chart|theaters|million|domestic/)) return 'boxoffice';
+            if (t.match(/exclusive|leak|insider|source says|scoop|rumor/)) return 'exclusive';
+            if (t.match(/deal|merger|acquisition|partnership|renew|signs deal|million deal/)) return 'deal';
+            return 'news';
+        }
+
+        function getImageForCategory(cat) {
+            const images = {
+                'casting': 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?q=80&w=800',
+                'boxoffice': 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800',
+                'exclusive': 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=800',
+                'deal': 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=800',
+                'news': 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=800'
+            };
+            return images[cat] || images['news'];
+        }
+
+        function getFallbackNews() {
+            return [
+                {id: '1', source: 'VARIETY', type: 'exclusive', title: 'Warner Bros. Discovery Planning Major DC Universe Reset', excerpt: 'Internal emails reveal David Zaslav\'s plan to overhaul DC Studios strategy following the release of James Gunn\'s Superman.', published: new Date().toISOString(), image: getImageForCategory('exclusive'), author: 'Staff'},
+                {id: '2', source: 'THR', type: 'casting', title: 'Florence Pugh in Final Negotiations for Nolan\'s Next Film', excerpt: 'Following her Oscar nomination, Pugh is set to lead the ensemble of Nolan\'s $250M Universal epic.', published: new Date().toISOString(), image: getImageForCategory('casting'), author: 'Staff'},
+                {id: '3', source: 'DEADLINE', type: 'boxoffice', title: 'Summer 2026 Tracking: $4.8B Projected Domestic Gross', excerpt: 'Analysts predict a record-breaking summer as Thunderbolts, Mission: Impossible 8 compete for IMAX screens.', published: new Date().toISOString(), image: getImageForCategory('boxoffice'), author: 'Staff'},
+                {id: '4', source: 'WRAP', type: 'exclusive', title: 'Netflix Quietly Cancels Three High-Profile Animation Projects', excerpt: 'Sources inside Netflix Animation confirm layoffs affecting projects from established creators.', published: new Date().toISOString(), image: getImageForCategory('exclusive'), author: 'Staff'},
+                {id: '5', source: 'INDIEWIRE', type: 'deal', title: 'A24 Signs First-Look Deal with Rising Horror Director', excerpt: 'Following Sundance success, indie darling signs exclusive two-year deal valued at $15M.', published: new Date().toISOString(), image: getImageForCategory('deal'), author: 'Staff'},
+                {id: '6', source: 'VARIETY', type: 'casting', title: 'Zendaya Eyed for Lead in Luca Guadagnino\'s Next Romance', excerpt: 'Italian director planning contemporary adaptation of classic novel. Zendaya\'s camp reportedly very interested.', published: new Date().toISOString(), image: getImageForCategory('casting'), author: 'Staff'}
+            ];
+        }
+
+        function renderNews(filter) {
+            const container = document.getElementById('newsFeed');
+            const filtered = filter === 'all' ? currentNewsData : currentNewsData.filter(n => n.type === filter);
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="text-center py-12 text-gray-500">No articles found for this category.</div>';
+                return;
+            }
+            container.innerHTML = filtered.map(news => {
+                const sourceKey = news.source.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+                const sourceClass = `source-badge-${sourceKey}`;
+                const timeAgo = getTimeAgo(news.published);
+                const hasImage = news.image && !news.image.includes('undefined');
+                return `
+                <article class="news-card glass-panel rounded-xl overflow-hidden border border-hollywood-gold/10 transition-all duration-300" data-type="${news.type}">
+                    <div class="md:flex">
+                        <div class="md:w-1/3 relative h-48 md:h-auto overflow-hidden bg-hollywood-800">
+                            ${hasImage ? 
+                                `<img src="${news.image}" alt="${news.title}" class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity transform hover:scale-105 duration-500" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-hollywood-gold/30\\'><i class=\\'fas fa-newspaper text-4xl\\'></i></div>';">` : 
+                                `<div class="w-full h-full flex items-center justify-center text-hollywood-gold/30"><i class="fas fa-newspaper text-4xl"></i></div>`
+                            }
+                            <div class="absolute top-2 left-2 px-2 py-1 bg-hollywood-900/80 text-hollywood-gold text-xs font-bold rounded border border-hollywood-gold/20 backdrop-blur-sm">
+                                <i class="fas fa-rss mr-1"></i>${news.source}
+                            </div>
+                        </div>
+                        <div class="p-6 md:w-2/3">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold border ${sourceClass}">${news.source}</span>
+                                <span class="text-xs text-gray-500">${timeAgo}</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2 hover:text-hollywood-gold transition-colors cursor-pointer" onclick="openArticle('${news.id}')">${news.title}</h3>
+                            <p class="text-gray-400 text-sm mb-4 line-clamp-2">${news.excerpt}</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-xs text-gray-400">By <span class="text-hollywood-gold">${news.author || 'Staff'}</span></span>
+                                    <span class="text-xs text-gray-600">• ${news.type.toUpperCase()}</span>
+                                </div>
+                                <a href="${news.url || '#'}" target="_blank" rel="noopener noreferrer" class="text-hollywood-gold text-sm font-semibold hover:underline flex items-center group">
+                                    Read Source <i class="fas fa-external-link-alt ml-1 text-xs group-hover:translate-x-1 transition-transform"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                `;
+            }).join('');
+        }
+
+        function renderBoxOffice(data) {
+            const container = document.getElementById('boxOfficeWidget');
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="text-center py-4 text-gray-500">Box office data unavailable.</div>';
+                return;
+            }
+            container.innerHTML = data.map(movie => {
+                const trend = movie.change === 'New' || movie.change.includes('+') ? 'up' : movie.change === 'Re-release' ? 'new' : 'down';
+                const trendColor = trend === 'up' ? 'text-green-400' : trend === 'new' ? 'text-hollywood-gold' : 'text-red-400';
+                const trendIcon = trend === 'up' ? 'arrow-up' : trend === 'down' ? 'arrow-down' : 'star';
+                return `
+                <div class="flex items-center justify-between p-3 bg-hollywood-900/50 rounded-lg border border-hollywood-gold/5 hover:border-hollywood-gold/20 transition-all">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-6 h-6 rounded bg-hollywood-800 text-hollywood-gold text-xs font-bold flex items-center justify-center border border-hollywood-gold/20">${movie.rank}</span>
+                        <div>
+                            <h4 class="text-sm font-semibold text-white">${movie.title}</h4>
+                            <p class="text-xs text-gray-500">${movie.studio}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-white">${movie.gross}</p>
+                        <p class="text-xs ${trendColor}"><i class="fas fa-${trendIcon} mr-1"></i>${movie.change}</p>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function updateTicker(boxOfficeData) {
+            const ticker = document.getElementById('breakingTicker');
+            const headlines = [
+                'Christopher Nolan signs $250M deal for next epic',
+                'Marvel Phase 6 slate leaked via production documents',
+                'Warner Bros Discovery merger aftermath continues',
+                'Dune: Part Three confirmed at Legendary Pictures',
+                'SAG-AFTRA negotiations enter final phase',
+                'Netflix raises subscription prices globally',
+                'Avatar 4 production begins in New Zealand'
+            ];
+            if (boxOfficeData && boxOfficeData.length > 0) {
+                boxOfficeData.slice(0, 3).forEach(m => {
+                    headlines.push(`BOX OFFICE: ${m.title} grosses ${m.gross} (${m.change})`);
+                });
+            }
+            const content = headlines.map(h => `<span class="mx-8">🔥 ${h}</span>`).join('');
+            ticker.innerHTML = content + content;
+        }
+
+        function getTimeAgo(dateString) {
+            if (!dateString) return 'Recently';
+            try {
+                const date = new Date(dateString);
+                const now = new Date();
+                const seconds = Math.floor((now - date) / 1000);
+                if (seconds < 60) return 'Just now';
+                if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+                if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+                return `${Math.floor(seconds / 86400)}d ago`;
+            } catch(e) { return 'Recently'; }
+        }
+
+        function filterNews(type) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === type) {
+                    btn.classList.add('bg-hollywood-gold/20', 'text-hollywood-gold', 'border-hollywood-gold/30');
+                    btn.classList.remove('text-gray-400', 'border-gray-700');
+                } else {
+                    btn.classList.remove('bg-hollywood-gold/20', 'text-hollywood-gold', 'border-hollywood-gold/30');
+                    btn.classList.add('text-gray-400', 'border-gray-700');
+                }
+            });
+            const container = document.getElementById('newsFeed');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                renderNews(type);
+                container.style.transition = 'all 0.3s ease';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 200);
+        }
+
+        function loadMoreNews() {
+            const btn = event.target;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading...';
+            setTimeout(() => {
+                const more = currentNewsData.slice(0, 3).map(n => ({
+                    ...n, 
+                    id: n.id + '-more-' + Date.now(),
+                    title: 'Related: ' + n.title
+                }));
+                currentNewsData.push(...more);
+                renderNews(document.querySelector('.filter-btn.active')?.dataset.filter || 'all');
+                btn.innerHTML = 'Load More Intel <i class="fas fa-chevron-down ml-2"></i>';
+            }, 1000);
+        }
+
+        function openArticle(id) {
+            const news = currentNewsData.find(n => n.id == id);
+            if (news && news.url) window.open(news.url, '_blank');
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function handleNewsletter(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i>Subscribed!';
+            btn.classList.add('bg-green-500/20', 'text-green-400', 'border-green-500/30');
+            setTimeout(() => {
+                btn.innerHTML = 'Subscribe Free';
+                btn.classList.remove('bg-green-500/20', 'text-green-400', 'border-green-500/30');
+                e.target.reset();
+            }, 3000);
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = now.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'}) + ' PT';
+            document.getElementById('heroTime').textContent = now.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                togglePremiumModal();
+                toggleAuthModal();
+            }
+        });
+    </script>
+</body>
+</html>
