@@ -1188,7 +1188,7 @@
         // ==================== NEWS & BOX OFFICE (UNCHANGED) ====================
 
         const CONFIG = {
-            useLocalData: true,
+            useLocalData: false,
             localEndpoints: { boxoffice: './boxoffice.json', news: './rss_news.json' },
             rss2jsonApi: 'https://api.rss2json.com/v1/api.json',
             rssFeeds: {
@@ -1268,7 +1268,7 @@
                 if (articles.length === 0) {
                     const feedPromises = Object.entries(CONFIG.rssFeeds).map(async ([source, url]) => {
                         try {
-                            const apiUrl = `${CONFIG.rss2jsonApi}?rss_url=${encodeURIComponent(url)}&count=5`;
+                            const apiUrl = `${CONFIG.rss2jsonApi}?rss_url=${encodeURIComponent(url)}`;
                             const resp = await fetch(apiUrl);
                             const data = await resp.json();
                             if (data.items) {
