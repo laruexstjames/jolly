@@ -1187,6 +1187,8 @@
 
         // ==================== NEWS & BOX OFFICE (UNCHANGED) ====================
 
+        const BOXOFFICE_API = 'https://jollywood-boxoffice.laruexstjames.workers.dev';
+
         const CONFIG = {
             useLocalData: false,
             localEndpoints: { boxoffice: './boxoffice.json', news: './rss_news.json' },
@@ -1220,36 +1222,35 @@
 
         async function loadBoxOfficeData() {
             try {
-                let data;
-                if (CONFIG.useLocalData) {
-                    try {
-                        const resp = await fetch(CONFIG.localEndpoints.boxoffice + '?t=' + Date.now());
-                        if (resp.ok) data = await resp.json();
-                    } catch(e) {}
-                }
-                if (!data || !data.chart) {
-                    data = {
-                        updated: new Date().toISOString(),
-                        source: 'Box Office Mojo (Fallback)',
-                        chart: [
-                            {"rank": "1", "title": "Thunderbolts*", "gross": "$86.1M", "change": "New", "weeks": "1", "studio": "Disney"},
-                            {"rank": "2", "title": "Sinners", "gross": "$30.4M", "change": "-48%", "weeks": "2", "studio": "WB"},
-                            {"rank": "3", "title": "A Minecraft Movie", "gross": "$17.8M", "change": "-42%", "weeks": "4", "studio": "WB"},
-                            {"rank": "4", "title": "The Amateur", "gross": "$12.1M", "change": "New", "weeks": "1", "studio": "Disney"},
-                            {"rank": "5", "title": "Drop", "gross": "$4.2M", "change": "-55%", "weeks": "3", "studio": "Universal"},
-                            {"rank": "6", "title": "The King of Kings", "gross": "$3.8M", "change": "-38%", "weeks": "3", "studio": "Angel"},
-                            {"rank": "7", "title": "One And Only", "gross": "$2.9M", "change": "New", "weeks": "1", "studio": "Sony"},
-                            {"rank": "8", "title": "The Accountant 2", "gross": "$2.4M", "change": "-62%", "weeks": "2", "studio": "MGM"},
-                            {"rank": "9", "title": "Until Dawn", "gross": "$1.8M", "change": "-67%", "weeks": "2", "studio": "Sony"},
-                            {"rank": "10", "title": "Star Wars: Revenge of the Sith", "gross": "$1.5M", "change": "Re-release", "weeks": "1", "studio": "Disney"}
-                        ]
-                    };
-                }
+                // Fetch live box office data from Cloudflare Worker (TMDB-powered)
+                const resp = await fetch(BOXOFFICE_API + '?t=' + Date.now());
+                if (!resp.ok) throw new Error('Worker returned ' + resp.status);
+                const data = await resp.json();
+                if (!data || !data.chart || data.chart.length === 0) throw new Error('Empty chart');
                 currentBoxOfficeData = data.chart;
                 renderBoxOffice(data.chart);
                 updateTicker(data.chart);
+                // Update source label
+                const srcEl = document.getElementById('boxofficeSource');
+                if (srcEl) srcEl.textContent = 'Source: TMDB Now Playing • Updated hourly';
             } catch (error) {
-                renderBoxOffice([]);
+                console.warn('Live box office fetch failed, using fallback:', error.message);
+                // Fallback static data
+                const fallback = [
+                    {"rank": "1", "title": "Thunderbolts*", "gross": "$86.1M", "change": "New", "weeks": "1", "studio": "Disney"},
+                    {"rank": "2", "title": "Sinners", "gross": "$30.4M", "change": "-48%", "weeks": "2", "studio": "WB"},
+                    {"rank": "3", "title": "A Minecraft Movie", "gross": "$17.8M", "change": "-42%", "weeks": "4", "studio": "WB"},
+                    {"rank": "4", "title": "The Amateur", "gross": "$12.1M", "change": "New", "weeks": "1", "studio": "Disney"},
+                    {"rank": "5", "title": "Drop", "gross": "$4.2M", "change": "-55%", "weeks": "3", "studio": "Universal"},
+                    {"rank": "6", "title": "The King of Kings", "gross": "$3.8M", "change": "-38%", "weeks": "3", "studio": "Angel"},
+                    {"rank": "7", "title": "One And Only", "gross": "$2.9M", "change": "New", "weeks": "1", "studio": "Sony"},
+                    {"rank": "8", "title": "The Accountant 2", "gross": "$2.4M", "change": "-62%", "weeks": "2", "studio": "MGM"},
+                    {"rank": "9", "title": "Until Dawn", "gross": "$1.8M", "change": "-67%", "weeks": "2", "studio": "Sony"},
+                    {"rank": "10", "title": "Star Wars: Revenge of the Sith", "gross": "$1.5M", "change": "Re-release", "weeks": "1", "studio": "Disney"}
+                ];
+                currentBoxOfficeData = fallback;
+                renderBoxOffice(fallback);
+                updateTicker(fallback);
             }
         }
 
