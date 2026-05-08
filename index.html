@@ -9,7 +9,7 @@
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(self)">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://js.stripe.com https://pagead2.googlesyndication.com https://pl29366063.profitablecpmratenetwork.com https://an.adsterra.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.rss2json.com https://jollywood-boxoffice.laruexstjames.workers.dev https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; object-src 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://js.stripe.com https://pagead2.googlesyndication.com https://pl29366063.profitablecpmratenetwork.com https://an.adsterra.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.rss2json.com https://jollywood-boxoffice.laruexstjames.workers.dev https://jollywood-roku-capi.laruexstjames.workers.dev https://events.ads.rokuapi.net https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; object-src 'none'; base-uri 'self';">
     <title>Jollywood Insider | Live Industry Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1031,8 +1031,55 @@
             appId: "1:675688373991:web:92057797ae8e14a2080c42"
         };
 
-        const STRIPE_PUBLISHABLE_KEY = 'pk_test_YOUR_STRIPE_PUBLISHABLE_KEY';
+        const STRIPE_PUBLISHABLE_KEY = 'pk_live_51TTwKxGMApqN2dHHpgUfU3nDMxp9YJl7zWch5nx0k0c2jyWZl6lc2PdTLhskbsvIpQTdTG3cl2XzesBy07MEDfqD00FWnbgjo3';
         const BACKEND_URL = 'https://your-server.com'; // Your Node.js server URL
+
+        // ==================== ROKU CAPI ====================
+        const ROKU_CAPI_WORKER = 'https://jollywood-roku-capi.laruexstjames.workers.dev';
+
+        /**
+         * Send a conversion event to Roku via the CAPI Worker (server-side relay).
+         * @param {string} eventName  - Roku event name (e.g. PAGE_VIEW, SIGN_UP, SUBSCRIBE, LEAD)
+         * @param {object} options    - Optional: { userEmail, customData, referrerUrl }
+         */
+        async function sendRokuCapiEvent(eventName, options = {}) {
+            try {
+                const eventId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
+                const payload = {
+                    event_name: eventName,
+                    event_id: eventId,
+                    event_source_url: window.location.href,
+                    referrer_url: document.referrer || undefined,
+                    user_email: options.userEmail || (currentUser ? currentUser.email : undefined),
+                    custom_data: options.customData || undefined,
+                    test_mode: false
+                };
+                // Fire and forget — don't block the UI
+                fetch(ROKU_CAPI_WORKER, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(() => {}); // Silently ignore network errors
+            } catch (e) {
+                // Never let tracking errors affect the user experience
+            }
+        }
+
+        // Track affiliate link clicks
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('a[rel*="sponsored"]').forEach(link => {
+                link.addEventListener('click', () => {
+                    sendRokuCapiEvent('LEAD', {
+                        customData: {
+                            content_name: link.textContent.trim().substring(0, 50),
+                            content_category: 'affiliate_click',
+                            utm_source: 'jollywood_insider',
+                            utm_medium: 'affiliate'
+                        }
+                    });
+                });
+            });
+        });
 
         // Stripe Price IDs from your Stripe Dashboard
         const STRIPE_PRICES = {
@@ -1046,6 +1093,19 @@
         firebase.initializeApp(FIREBASE_CONFIG);
         const auth = firebase.auth();
         const db = firebase.firestore();
+
+        // Fire PAGE_VIEW CAPI event on load
+        window.addEventListener('load', () => {
+            sendRokuCapiEvent('PAGE_VIEW', {
+                customData: {
+                    content_category: 'entertainment_news',
+                    content_name: document.title,
+                    utm_source: new URLSearchParams(window.location.search).get('utm_source') || undefined,
+                    utm_medium: new URLSearchParams(window.location.search).get('utm_medium') || undefined,
+                    utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign') || undefined
+                }
+            });
+        });
         
         // Initialize Stripe
         const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
@@ -1197,10 +1257,19 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             
             try {
+                const signupEmail = document.getElementById('signupEmail').value;
                 await auth.createUserWithEmailAndPassword(
-                    document.getElementById('signupEmail').value,
+                    signupEmail,
                     document.getElementById('signupPassword').value
                 );
+                // Fire SIGN_UP CAPI event
+                sendRokuCapiEvent('SIGN_UP', {
+                    userEmail: signupEmail,
+                    customData: {
+                        content_category: 'registration',
+                        content_name: 'Jollywood Insider Free Account'
+                    }
+                });
                 toggleAuthModal();
             } catch (err) {
                 errorEl.textContent = err.message;
@@ -1286,6 +1355,15 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Redirecting...';
             
             try {
+                // Fire INITIATE_CHECKOUT CAPI event
+                sendRokuCapiEvent('INITIATE_CHECKOUT', {
+                    customData: {
+                        content_name: selectedPlan === 'monthly' ? 'Jollywood Insider Monthly $9.99' : 'Jollywood Insider Annual $5.99/mo',
+                        content_category: 'subscription',
+                        currency: 'USD',
+                        value: selectedPlan === 'monthly' ? 9.99 : 71.88
+                    }
+                });
                 const response = await fetch(`${BACKEND_URL}/create-checkout-session`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
