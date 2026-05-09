@@ -1426,7 +1426,7 @@
                 billboard: 'https://www.billboard.com/feed/',
                 screenrant: 'https://screenrant.com/feed/',
                 collider: 'https://collider.com/feed/',
-                cinemablend: 'https://www.cinemablend.com/rss/topic/news',
+                thrMovies: 'https://www.hollywoodreporter.com/c/movies/feed/',
                 slashfilm: 'https://www.slashfilm.com/feed/'
             }
         };
@@ -1514,10 +1514,10 @@
                                     author: 'Staff'
                                 }));
                             }
-                        } catch(e) { return []; }
+                        } catch(e) { console.warn('Feed failed:', source, e.message); return []; }
                     });
                     const results = await Promise.all(feedPromises);
-                    articles = results.flat();
+                    articles = results.filter(r => r && r.length > 0).flat();
                 }
                 articles.sort((a, b) => new Date(b.published) - new Date(a.published));
                 currentNewsData = articles;
