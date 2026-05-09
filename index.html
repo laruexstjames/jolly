@@ -1581,6 +1581,24 @@
             } catch(e) { return '#'; }
         }
 
+        // Amazon Associates affiliate link generator (tag=jollyb-20)
+        function amazonSearchLink(query) {
+            return 'https://www.amazon.com/s?k=' + encodeURIComponent(query) + '&tag=jollyb-20';
+        }
+        function amazonPrimeLink(query) {
+            return 'https://www.amazon.com/s?k=' + encodeURIComponent(query) + '&i=instant-video&tag=jollyb-20';
+        }
+        // Extract likely movie/show title from a news headline
+        function extractTitleFromHeadline(title) {
+            // Match text in single quotes, double quotes, or after common keywords
+            const quoted = title.match(/['‘’]([^'‘’]{3,40})['‘’]|"([^"]{3,40})"|\u201c([^\u201d]{3,40})\u201d/);
+            if (quoted) return (quoted[1] || quoted[2] || quoted[3]).trim();
+            // Match after keywords like Review:, Watch, Stream
+            const keyword = title.match(/(?:Review:|Watch|Stream|Binge|See)\s+['"]?([A-Z][\w\s:&'-]{3,35})/i);
+            if (keyword) return keyword[1].trim();
+            return null;
+        }
+
         function renderNews(filter) {
             const container = document.getElementById('newsFeed');
             const filtered = filter === 'all' ? currentNewsData : currentNewsData.filter(n => n.type === filter);
@@ -1622,9 +1640,12 @@
                                     <span class="text-xs text-gray-400">By <span class="text-hollywood-gold">${safeAuthor}</span></span>
                                     <span class="text-xs text-gray-600">• ${news.type.toUpperCase()}</span>
                                 </div>
-                                <a href="${safeArticleUrl}" target="_blank" rel="noopener noreferrer" class="text-hollywood-gold text-sm font-semibold hover:underline flex items-center group">
-                                    Read Source <i class="fas fa-external-link-alt ml-1 text-xs group-hover:translate-x-1 transition-transform"></i>
-                                </a>
+                                <div class="flex items-center space-x-2">
+                                    ${(() => { const t = extractTitleFromHeadline(news.title); return t ? `<a href="${amazonPrimeLink(t)}" target="_blank" rel="noopener sponsored" title="Watch on Prime Video" class="text-xs px-2 py-1 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded hover:bg-yellow-500/20 transition-all"><i class="fab fa-amazon mr-1"></i>Prime</a>` : ''; })()}
+                                    <a href="${safeArticleUrl}" target="_blank" rel="noopener noreferrer" class="text-hollywood-gold text-sm font-semibold hover:underline flex items-center group">
+                                        Read Source <i class="fas fa-external-link-alt ml-1 text-xs group-hover:translate-x-1 transition-transform"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1652,8 +1673,8 @@
                     <div class="flex items-center space-x-3">
                         <span class="w-6 h-6 rounded bg-hollywood-800 text-hollywood-gold text-xs font-bold flex items-center justify-center border border-hollywood-gold/20">${sanitizeHTML(String(movie.rank))}</span>
                         <div>
-                            <h4 class="text-sm font-semibold text-white">${safeMovieTitle}</h4>
-                            <p class="text-xs text-gray-500">${safeStudio}</p>
+                            <a href="${amazonPrimeLink(movie.title)}" target="_blank" rel="noopener sponsored" title="Watch ${safeMovieTitle} on Amazon" class="text-sm font-semibold text-white hover:text-yellow-400 transition-colors">${safeMovieTitle}</a>
+                            <p class="text-xs text-gray-500">${safeStudio} <a href="${amazonSearchLink(movie.title)}" target="_blank" rel="noopener sponsored" class="text-yellow-500/60 hover:text-yellow-400 ml-1" title="Buy on Amazon"><i class="fab fa-amazon text-xs"></i></a></p>
                         </div>
                     </div>
                     <div class="text-right">
