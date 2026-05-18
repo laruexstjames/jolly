@@ -327,9 +327,6 @@
         </div>
     </header>
 
-    <!-- Adsterra Popunder (fires on first page click) -->
-    <script src="https://pl29487584.effectivecpmnetwork.com/4c/c0/9a/4cc09ad4c464ba3b522c713717d4b10c.js"></script>
-
     <!-- Top AdSense Banner -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="adsense-box rounded-lg p-4 text-center">
@@ -1732,7 +1729,21 @@
                     </div>
                 </article>
                 `;
-            }).join('');
+            }).reduce((acc, card, i, arr) => {
+                acc += card;
+                // Insert sponsored content after the middle article
+                const mid = Math.floor(arr.length / 2);
+                if (i === mid - 1 && arr.length > 2) {
+                    acc += `
+                <div class="sponsored-content glass-panel rounded-xl overflow-hidden border border-hollywood-gold/20 bg-gradient-to-r from-hollywood-900/60 to-hollywood-800/40 p-5 my-2">
+                    <p class="text-xs text-gray-500 uppercase tracking-widest mb-3 flex items-center"><i class="fas fa-ad mr-2 text-hollywood-gold/50"></i>Sponsored Content</p>
+                    <div id="sponsored-native-mid"></div>
+                    <script async="async" data-cfasync="false" src="//pl29366063.profitablecpmratenetwork.com/1ad9c33c7c09ccf1c07c6b4f24b2fcf1/invoke.js"><\/script>
+                    <div id="container-1ad9c33c7c09ccf1c07c6b4f24b2fcf1-mid"></div>
+                </div>`;
+                }
+                return acc;
+            }, '');
         }
 
         function renderBoxOffice(data) {
