@@ -1647,17 +1647,37 @@
                             const resp = await fetch(apiUrl);
                             const data = await resp.json();
                             if (data.items) {
-                                return data.items.map(item => ({
-                                    id: `${source}-${Math.random().toString(36).substr(2, 9)}`,
-                                    source: source.toUpperCase(),
-                                    title: item.title,
-                                    excerpt: item.description ? item.description.replace(/<[^>]*>/g, '').substring(0, 200) + '...' : '',
-                                    url: item.link,
-                                    published: item.pubDate,
-                                    type: categorizeNews(item.title),
-                                    image: getImageForCategory(categorizeNews(item.title)),
-                                    author: 'Staff'
-                                }));
+                                return data.items.map(item => {
+                                    // Extract real article thumbnail from multiple possible fields
+                                    let img = null;
+                                    // 1. rss2json thumbnail field
+                                    if (item.thumbnail && item.thumbnail.startsWith('http')) img = item.thumbnail;
+                                    // 2. enclosure (podcast/media RSS)
+                                    if (!img && item.enclosure && item.enclosure.link && item.enclosure.link.match(/\.(jpg|jpeg|png|webp|gif)/i)) img = item.enclosure.link;
+                                    // 3. media:content or media:thumbnail in content
+                                    if (!img && item.content) {
+                                        const m = item.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+                                        if (m && m[1].startsWith('http')) img = m[1];
+                                    }
+                                    // 4. og:image or first img in description
+                                    if (!img && item.description) {
+                                        const m = item.description.match(/<img[^>]+src=["']([^"']+)["']/i);
+                                        if (m && m[1].startsWith('http')) img = m[1];
+                                    }
+                                    // 5. Fall back to category image
+                                    if (!img) img = getImageForCategory(categorizeNews(item.title));
+                                    return {
+                                        id: `${source}-${Math.random().toString(36).substr(2, 9)}`,
+                                        source: source.toUpperCase(),
+                                        title: item.title,
+                                        excerpt: item.description ? item.description.replace(/<[^>]*>/g, '').substring(0, 200) + '...' : '',
+                                        url: item.link,
+                                        published: item.pubDate,
+                                        type: categorizeNews(item.title),
+                                        image: img,
+                                        author: item.author || 'Staff'
+                                    };
+                                });
                             }
                         } catch(e) { console.warn('Feed failed:', source, e.message); return []; }
                     });
