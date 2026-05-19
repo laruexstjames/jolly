@@ -1875,8 +1875,10 @@
                     <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
                         ${sponsoredProducts.map(p => `
                         <a href="${p.url}" target="_blank" rel="noopener sponsored" class="block bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
-                            <img src="${p.img}" alt="${p.title}" class="w-full h-20 object-cover opacity-80 group-hover:opacity-100 transition-opacity">
-                            <div class="p-2 text-center"><p class="text-white text-xs font-bold group-hover:text-yellow-400">${p.title}</p><p class="text-gray-500 text-xs">${p.sub}</p></div>
+                            <div class="relative w-full" style="padding-top:60%;">
+                                <img src="${p.img}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover object-center opacity-85 group-hover:opacity-100 transition-opacity transform group-hover:scale-105 duration-500">
+                            </div>
+                            <div class="p-2 text-center"><p class="text-white text-xs font-bold group-hover:text-yellow-400 leading-tight">${p.title}</p><p class="text-gray-500 text-xs mt-0.5">${p.sub}</p></div>
                         </a>`).join('')}
                     </div>
                     <p class="text-xs text-gray-600 mt-2">Amazon affiliate links · We may earn a commission</p>
