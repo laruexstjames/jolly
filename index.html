@@ -1871,8 +1871,8 @@
                     <p class="text-xs text-gray-500 uppercase tracking-widest mb-3 flex items-center"><i class="fas fa-ad mr-2 text-hollywood-gold/50"></i>Sponsored Content</p>
                     <!-- Ezoic Ad Placeholder - Mid Feed -->
                     <div id="ezoic-pub-ad-placeholder-101" style="min-height:90px;"></div>
-                    <!-- Context-Aware Amazon Shopping Ads -->
-                    <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <!-- Context-Aware Amazon Shopping Ads (live rotating) -->
+                    <div id="sponsored-grid" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3" style="transition:opacity 0.5s ease;">
                         ${sponsoredProducts.map(p => `
                         <a href="${p.url}" target="_blank" rel="noopener sponsored" class="block bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
                             <div class="relative w-full" style="padding-top:60%;">
@@ -1886,6 +1886,47 @@
             const firstHalf = cards.slice(0, midIndex).join('');
             const secondHalf = cards.slice(midIndex).join('');
             container.innerHTML = firstHalf + sponsoredBlock + secondHalf;
+            // Start live rotation of sponsored products
+            startSponsoredRotation(filter, filtered);
+        }
+
+        // Live rotation state
+        let _sponsoredRotationTimer = null;
+        let _sponsoredRotationIndex = 0;
+
+        function buildSponsoredTiles(products) {
+            return products.map(p => `
+                <a href="${p.url}" target="_blank" rel="noopener sponsored" class="block bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
+                    <div class="relative w-full" style="padding-top:60%;">
+                        <img src="${p.img}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover object-center opacity-85 group-hover:opacity-100 transition-opacity transform group-hover:scale-105 duration-500">
+                    </div>
+                    <div class="p-2 text-center"><p class="text-white text-xs font-bold group-hover:text-yellow-400 leading-tight">${p.title}</p><p class="text-gray-500 text-xs mt-0.5">${p.sub}</p></div>
+                </a>`).join('');
+        }
+
+        function startSponsoredRotation(filter, articles) {
+            // Clear any existing rotation timer
+            if (_sponsoredRotationTimer) { clearInterval(_sponsoredRotationTimer); _sponsoredRotationTimer = null; }
+            const grid = document.getElementById('sponsored-grid');
+            if (!grid) return;
+            // Build a flat pool of all product sets, starting with the context-relevant one
+            const allSets = Object.values(SPONSORED_PRODUCTS);
+            const contextSet = getSponsoredProducts(filter, articles);
+            // Put context set first, then shuffle in the rest
+            const pool = [contextSet, ...allSets.filter(s => s !== contextSet)];
+            _sponsoredRotationIndex = 0;
+            _sponsoredRotationTimer = setInterval(() => {
+                const g = document.getElementById('sponsored-grid');
+                if (!g) { clearInterval(_sponsoredRotationTimer); return; }
+                // Fade out
+                g.style.opacity = '0';
+                setTimeout(() => {
+                    _sponsoredRotationIndex = (_sponsoredRotationIndex + 1) % pool.length;
+                    g.innerHTML = buildSponsoredTiles(pool[_sponsoredRotationIndex]);
+                    // Fade in
+                    g.style.opacity = '1';
+                }, 500);
+            }, 6000); // rotate every 6 seconds
         }
 
         function renderBoxOffice(data) {
