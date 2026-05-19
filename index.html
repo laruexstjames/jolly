@@ -1764,6 +1764,53 @@
             return null;
         }
 
+        // Context-aware sponsored product pool keyed by article category
+        const SPONSORED_PRODUCTS = {
+            casting: [
+                { title: 'Acting Technique Books', sub: 'Stanislavski, Meisner & more', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=acting+technique+books+stanislavski&tag=jollyb-20' },
+                { title: 'Audible: Actor Memoirs', sub: 'Hollywood legends speak', img: '/img/audible-card.jpg', url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' },
+                { title: 'Prime Video', sub: 'Watch the performances', img: '/img/prime-video-card.jpg', url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
+                { title: 'Screenwriting Books', sub: 'Write the next great role', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=screenwriting+books+syd+field&tag=jollyb-20' }
+            ],
+            boxoffice: [
+                { title: 'New Releases on 4K', sub: 'Top box office on disc', img: '/img/bluray-4k-card.jpg', url: 'https://www.amazon.com/s?k=best+movies+2026+4k+blu-ray&tag=jollyb-20' },
+                { title: 'Prime Video', sub: 'Stream this weekend', img: '/img/prime-video-card.jpg', url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
+                { title: 'Box Office Books', sub: 'The business of Hollywood', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=hollywood+box+office+business+books&tag=jollyb-20' },
+                { title: 'Audible: Film Podcasts', sub: 'Industry deep dives', img: '/img/audible-card.jpg', url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' }
+            ],
+            exclusive: [
+                { title: 'Insider Hollywood Books', sub: 'Behind the scenes secrets', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=hollywood+insider+behind+scenes+books&tag=jollyb-20' },
+                { title: 'Audible: Industry Memoirs', sub: 'Straight from the source', img: '/img/audible-card.jpg', url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' },
+                { title: 'Prime Video Originals', sub: 'Exclusive content', img: '/img/prime-video-card.jpg', url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
+                { title: 'Film Journalism Books', sub: 'Learn the craft of reporting', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=film+journalism+entertainment+reporting+books&tag=jollyb-20' }
+            ],
+            deal: [
+                { title: 'Producing & Deal-Making', sub: 'The business side of film', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=film+producing+deal+making+books+hollywood&tag=jollyb-20' },
+                { title: 'Entertainment Law Books', sub: 'Contracts & rights explained', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=entertainment+law+books+film+contracts&tag=jollyb-20' },
+                { title: 'Prime Video', sub: 'Watch the biggest productions', img: '/img/prime-video-card.jpg', url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
+                { title: 'Audible: Business Titles', sub: 'Industry strategy & finance', img: '/img/audible-card.jpg', url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' }
+            ],
+            news: [
+                { title: 'New Releases on 4K', sub: 'Latest films on disc', img: '/img/bluray-4k-card.jpg', url: 'https://www.amazon.com/s?k=new+movies+2026+blu-ray+4k&tag=jollyb-20' },
+                { title: 'Prime Video', sub: 'Stream movies & shows', img: '/img/prime-video-card.jpg', url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
+                { title: 'Filmmaking Books', sub: 'Scripts, directing & more', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=hollywood+filmmaking+books&tag=jollyb-20' },
+                { title: 'Audible Free Trial', sub: 'Hollywood memoirs & scripts', img: '/img/audible-card.jpg', url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' }
+            ]
+        };
+
+        function getSponsoredProducts(filter, articles) {
+            // Determine dominant category from the articles being shown
+            if (filter && filter !== 'all' && SPONSORED_PRODUCTS[filter]) return SPONSORED_PRODUCTS[filter];
+            // For 'all', find the most common category in the current batch
+            if (articles && articles.length > 0) {
+                const counts = {};
+                articles.forEach(a => { counts[a.type] = (counts[a.type] || 0) + 1; });
+                const dominant = Object.entries(counts).sort((a,b) => b[1]-a[1])[0][0];
+                if (SPONSORED_PRODUCTS[dominant]) return SPONSORED_PRODUCTS[dominant];
+            }
+            return SPONSORED_PRODUCTS.news;
+        }
+
         function renderNews(filter) {
             const container = document.getElementById('newsFeed');
             const filtered = filter === 'all' ? currentNewsData : currentNewsData.filter(n => n.type === filter);
@@ -1817,31 +1864,21 @@
                 </article>
                 `;
             });
-            // Insert sponsored content block exactly at the halfway point
+            // Insert context-aware sponsored content block exactly at the halfway point
             const midIndex = Math.floor(cards.length / 2);
+            const sponsoredProducts = getSponsoredProducts(filter, filtered);
             const sponsoredBlock = cards.length >= 2 ? `
                 <div class="glass-panel rounded-xl border border-hollywood-gold/20 bg-gradient-to-r from-hollywood-900/60 to-hollywood-800/40 p-5">
                     <p class="text-xs text-gray-500 uppercase tracking-widest mb-3 flex items-center"><i class="fas fa-ad mr-2 text-hollywood-gold/50"></i>Sponsored Content</p>
                     <!-- Ezoic Ad Placeholder - Mid Feed -->
                     <div id="ezoic-pub-ad-placeholder-101" style="min-height:90px;"></div>
-                    <!-- Amazon Shopping Ads with Images -->
+                    <!-- Context-Aware Amazon Shopping Ads -->
                     <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <a href="https://www.amazon.com/s?k=new+movies+2026+blu-ray+4k&tag=jollyb-20" target="_blank" rel="noopener sponsored" class="block bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
-                            <img src="/img/bluray-4k-card.jpg" alt="4K Blu-ray Movies" class="w-full h-20 object-cover opacity-80 group-hover:opacity-100 transition-opacity">
-                            <div class="p-2 text-center"><p class="text-white text-xs font-bold group-hover:text-yellow-400">New Releases</p><p class="text-gray-500 text-xs">Blu-ray & 4K</p></div>
-                        </a>
-                        <a href="https://www.amazon.com/amazonprime?tag=jollyb-20" target="_blank" rel="noopener sponsored" class="block bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
-                            <img src="/img/prime-video-card.jpg" alt="Amazon Prime Video" class="w-full h-20 object-cover opacity-80 group-hover:opacity-100 transition-opacity">
-                            <div class="p-2 text-center"><p class="text-white text-xs font-bold group-hover:text-yellow-400">Prime Video</p><p class="text-gray-500 text-xs">Stream now</p></div>
-                        </a>
-                        <a href="https://www.amazon.com/s?k=hollywood+filmmaking+books&tag=jollyb-20" target="_blank" rel="noopener sponsored" class="block bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
-                            <img src="/img/film-books-card.jpg" alt="Filmmaking Books" class="w-full h-20 object-cover opacity-80 group-hover:opacity-100 transition-opacity">
-                            <div class="p-2 text-center"><p class="text-white text-xs font-bold group-hover:text-yellow-400">Film Books</p><p class="text-gray-500 text-xs">Learn the craft</p></div>
-                        </a>
-                        <a href="https://www.audible.com/ep/freetrial?tag=jollyb-20" target="_blank" rel="noopener sponsored" class="block bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
-                            <img src="/img/audible-card.jpg" alt="Audible Free Trial" class="w-full h-20 object-cover opacity-80 group-hover:opacity-100 transition-opacity">
-                            <div class="p-2 text-center"><p class="text-white text-xs font-bold group-hover:text-yellow-400">Audible</p><p class="text-gray-500 text-xs">Free trial</p></div>
-                        </a>
+                        ${sponsoredProducts.map(p => `
+                        <a href="${p.url}" target="_blank" rel="noopener sponsored" class="block bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
+                            <img src="${p.img}" alt="${p.title}" class="w-full h-20 object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                            <div class="p-2 text-center"><p class="text-white text-xs font-bold group-hover:text-yellow-400">${p.title}</p><p class="text-gray-500 text-xs">${p.sub}</p></div>
+                        </a>`).join('')}
                     </div>
                     <p class="text-xs text-gray-600 mt-2">Amazon affiliate links · We may earn a commission</p>
                 </div>` : '';
