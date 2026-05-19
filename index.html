@@ -1765,36 +1765,37 @@
         }
 
         // Context-aware sponsored product pool keyed by article category
+        // Each tile slot has multiple image+product variants that rotate independently
         const SPONSORED_PRODUCTS = {
             casting: [
-                { title: 'Acting Technique Books', sub: 'Stanislavski, Meisner & more', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=acting+technique+books+stanislavski&tag=jollyb-20' },
-                { title: 'Audible: Actor Memoirs', sub: 'Hollywood legends speak', img: '/img/audible-card.jpg', url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' },
-                { title: 'Prime Video', sub: 'Watch the performances', img: '/img/prime-video-card.jpg', url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
-                { title: 'Screenwriting Books', sub: 'Write the next great role', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=screenwriting+books+syd+field&tag=jollyb-20' }
+                { title: 'Acting Technique Books', sub: 'Stanislavski, Meisner & more', imgs: ['/img/film-books-card.jpg', '/img/screenwriting-script.jpg', '/img/screenwriting-format.jpg'], url: 'https://www.amazon.com/s?k=acting+technique+books+stanislavski&tag=jollyb-20' },
+                { title: 'Audible: Actor Memoirs', sub: 'Hollywood legends speak', imgs: ['/img/audible-card.jpg', '/img/audible-banner.jpg'], url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' },
+                { title: 'Prime Video', sub: 'Watch the performances', imgs: ['/img/prime-video-card.jpg', '/img/prime-video-banner.jpg', '/img/prime-video-app.jpg'], url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
+                { title: 'Casting Room', sub: 'Behind the audition', imgs: ['/img/casting-studio.jpg', '/img/casting-audition.jpg', '/img/casting-room.jpg'], url: 'https://www.amazon.com/s?k=screenwriting+books+syd+field&tag=jollyb-20' }
             ],
             boxoffice: [
-                { title: 'New Releases on 4K', sub: 'Top box office on disc', img: '/img/bluray-4k-card.jpg', url: 'https://www.amazon.com/s?k=best+movies+2026+4k+blu-ray&tag=jollyb-20' },
-                { title: 'Prime Video', sub: 'Stream this weekend', img: '/img/prime-video-card.jpg', url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
-                { title: 'Box Office Books', sub: 'The business of Hollywood', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=hollywood+box+office+business+books&tag=jollyb-20' },
-                { title: 'Audible: Film Podcasts', sub: 'Industry deep dives', img: '/img/audible-card.jpg', url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' }
+                { title: 'New Releases on 4K', sub: 'Top box office on disc', imgs: ['/img/bluray-4k-card.jpg', '/img/bluray-dc-collection.jpg', '/img/bluray-nolan.jpg', '/img/bluray-harrypotter.jpg'], url: 'https://www.amazon.com/s?k=best+movies+2026+4k+blu-ray&tag=jollyb-20' },
+                { title: 'Prime Video', sub: 'Stream this weekend', imgs: ['/img/prime-video-card.jpg', '/img/prime-video-banner.jpg', '/img/prime-video-app.jpg'], url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
+                { title: 'Box Office Books', sub: 'The business of Hollywood', imgs: ['/img/film-books-card.jpg', '/img/screenwriting-script.jpg'], url: 'https://www.amazon.com/s?k=hollywood+box+office+business+books&tag=jollyb-20' },
+                { title: 'Audible: Film Podcasts', sub: 'Industry deep dives', imgs: ['/img/audible-card.jpg', '/img/audible-banner.jpg'], url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' }
             ],
             exclusive: [
-                { title: 'Insider Hollywood Books', sub: 'Behind the scenes secrets', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=hollywood+insider+behind+scenes+books&tag=jollyb-20' },
-                { title: 'Audible: Industry Memoirs', sub: 'Straight from the source', img: '/img/audible-card.jpg', url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' },
-                { title: 'Prime Video Originals', sub: 'Exclusive content', img: '/img/prime-video-card.jpg', url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
-                { title: 'Film Journalism Books', sub: 'Learn the craft of reporting', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=film+journalism+entertainment+reporting+books&tag=jollyb-20' }
+                { title: 'Insider Hollywood Books', sub: 'Behind the scenes secrets', imgs: ['/img/film-books-card.jpg', '/img/screenwriting-format.jpg'], url: 'https://www.amazon.com/s?k=hollywood+insider+behind+scenes+books&tag=jollyb-20' },
+                { title: 'Audible: Industry Memoirs', sub: 'Straight from the source', imgs: ['/img/audible-card.jpg', '/img/audible-banner.jpg'], url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' },
+                { title: 'Prime Video Originals', sub: 'Exclusive content', imgs: ['/img/prime-video-card.jpg', '/img/prime-video-banner.jpg', '/img/prime-video-app.jpg'], url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
+                { title: 'Film Journalism Books', sub: 'Learn the craft of reporting', imgs: ['/img/film-books-card.jpg', '/img/screenwriting-script.jpg'], url: 'https://www.amazon.com/s?k=film+journalism+entertainment+reporting+books&tag=jollyb-20' }
             ],
             deal: [
-                { title: 'Producing & Deal-Making', sub: 'The business side of film', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=film+producing+deal+making+books+hollywood&tag=jollyb-20' },
-                { title: 'Entertainment Law Books', sub: 'Contracts & rights explained', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=entertainment+law+books+film+contracts&tag=jollyb-20' },
-                { title: 'Prime Video', sub: 'Watch the biggest productions', img: '/img/prime-video-card.jpg', url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
-                { title: 'Audible: Business Titles', sub: 'Industry strategy & finance', img: '/img/audible-card.jpg', url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' }
+                { title: 'Producing & Deal-Making', sub: 'The business side of film', imgs: ['/img/film-books-card.jpg', '/img/screenwriting-format.jpg'], url: 'https://www.amazon.com/s?k=film+producing+deal+making+books+hollywood&tag=jollyb-20' },
+                { title: 'Entertainment Law Books', sub: 'Contracts & rights explained', imgs: ['/img/film-books-card.jpg', '/img/screenwriting-script.jpg'], url: 'https://www.amazon.com/s?k=entertainment+law+books+film+contracts&tag=jollyb-20' },
+                { title: 'Prime Video', sub: 'Watch the biggest productions', imgs: ['/img/prime-video-card.jpg', '/img/prime-video-banner.jpg'], url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
+                { title: 'Audible: Business Titles', sub: 'Industry strategy & finance', imgs: ['/img/audible-card.jpg', '/img/audible-banner.jpg'], url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' }
             ],
             news: [
-                { title: 'New Releases on 4K', sub: 'Latest films on disc', img: '/img/bluray-4k-card.jpg', url: 'https://www.amazon.com/s?k=new+movies+2026+blu-ray+4k&tag=jollyb-20' },
-                { title: 'Prime Video', sub: 'Stream movies & shows', img: '/img/prime-video-card.jpg', url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
-                { title: 'Filmmaking Books', sub: 'Scripts, directing & more', img: '/img/film-books-card.jpg', url: 'https://www.amazon.com/s?k=hollywood+filmmaking+books&tag=jollyb-20' },
-                { title: 'Audible Free Trial', sub: 'Hollywood memoirs & scripts', img: '/img/audible-card.jpg', url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' }
+                { title: 'New Releases on 4K', sub: 'Latest films on disc', imgs: ['/img/bluray-4k-card.jpg', '/img/bluray-nolan.jpg', '/img/bluray-dc-collection.jpg', '/img/bluray-harrypotter.jpg'], url: 'https://www.amazon.com/s?k=new+movies+2026+blu-ray+4k&tag=jollyb-20' },
+                { title: 'Prime Video', sub: 'Stream movies & shows', imgs: ['/img/prime-video-card.jpg', '/img/prime-video-banner.jpg', '/img/prime-video-app.jpg'], url: 'https://www.amazon.com/amazonprime?tag=jollyb-20' },
+                { title: 'Filmmaking Books', sub: 'Scripts, directing & more', imgs: ['/img/film-books-card.jpg', '/img/screenwriting-script.jpg', '/img/screenwriting-format.jpg'], url: 'https://www.amazon.com/s?k=hollywood+filmmaking+books&tag=jollyb-20' },
+                { title: 'Audible Free Trial', sub: 'Hollywood memoirs & scripts', imgs: ['/img/audible-card.jpg', '/img/audible-banner.jpg'], url: 'https://www.audible.com/ep/freetrial?tag=jollyb-20' }
             ]
         };
 
@@ -1873,13 +1874,13 @@
                     <div id="ezoic-pub-ad-placeholder-101" style="min-height:90px;"></div>
                     <!-- Context-Aware Amazon Shopping Ads (live rotating) -->
                     <div id="sponsored-grid" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3" style="transition:opacity 0.5s ease;">
-                        ${sponsoredProducts.map(p => `
+                        ${sponsoredProducts.map(p => { const firstImg = (p.imgs || [p.img])[0]; return `
                         <a href="${p.url}" target="_blank" rel="noopener sponsored" class="block bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
                             <div class="relative w-full" style="padding-top:60%;">
-                                <img src="${p.img}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover object-center opacity-85 group-hover:opacity-100 transition-opacity transform group-hover:scale-105 duration-500">
+                                <img src="${firstImg}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover object-center opacity-85 group-hover:opacity-100 transition-opacity transform group-hover:scale-105 duration-500">
                             </div>
                             <div class="p-2 text-center"><p class="text-white text-xs font-bold group-hover:text-yellow-400 leading-tight">${p.title}</p><p class="text-gray-500 text-xs mt-0.5">${p.sub}</p></div>
-                        </a>`).join('')}
+                        </a>`; }).join('')}
                     </div>
                     <p class="text-xs text-gray-600 mt-2">Amazon affiliate links · We may earn a commission</p>
                 </div>` : '';
@@ -1894,14 +1895,18 @@
         let _sponsoredRotationTimer = null;
         let _sponsoredRotationIndex = 0;
 
-        function buildSponsoredTiles(products) {
-            return products.map(p => `
+        function buildSponsoredTiles(products, imgIndices) {
+            return products.map((p, i) => {
+                const imgList = p.imgs || [p.img];
+                const imgSrc = imgList[(imgIndices ? imgIndices[i] : 0) % imgList.length];
+                return `
                 <a href="${p.url}" target="_blank" rel="noopener sponsored" class="block bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
                     <div class="relative w-full" style="padding-top:60%;">
-                        <img src="${p.img}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover object-center opacity-85 group-hover:opacity-100 transition-opacity transform group-hover:scale-105 duration-500">
+                        <img src="${imgSrc}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover object-center opacity-85 group-hover:opacity-100 transition-opacity transform group-hover:scale-105 duration-500">
                     </div>
                     <div class="p-2 text-center"><p class="text-white text-xs font-bold group-hover:text-yellow-400 leading-tight">${p.title}</p><p class="text-gray-500 text-xs mt-0.5">${p.sub}</p></div>
-                </a>`).join('');
+                </a>`;
+            }).join('');
         }
 
         function startSponsoredRotation(filter, articles) {
@@ -1909,24 +1914,32 @@
             if (_sponsoredRotationTimer) { clearInterval(_sponsoredRotationTimer); _sponsoredRotationTimer = null; }
             const grid = document.getElementById('sponsored-grid');
             if (!grid) return;
-            // Build a flat pool of all product sets, starting with the context-relevant one
-            const allSets = Object.values(SPONSORED_PRODUCTS);
-            const contextSet = getSponsoredProducts(filter, articles);
-            // Put context set first, then shuffle in the rest
-            const pool = [contextSet, ...allSets.filter(s => s !== contextSet)];
-            _sponsoredRotationIndex = 0;
+            const products = getSponsoredProducts(filter, articles);
+            // Track independent image index per tile
+            const imgIndices = products.map(() => 0);
+            let tileToRotate = 0; // rotate one tile at a time in sequence
             _sponsoredRotationTimer = setInterval(() => {
                 const g = document.getElementById('sponsored-grid');
                 if (!g) { clearInterval(_sponsoredRotationTimer); return; }
-                // Fade out
-                g.style.opacity = '0';
-                setTimeout(() => {
-                    _sponsoredRotationIndex = (_sponsoredRotationIndex + 1) % pool.length;
-                    g.innerHTML = buildSponsoredTiles(pool[_sponsoredRotationIndex]);
-                    // Fade in
-                    g.style.opacity = '1';
-                }, 500);
-            }, 6000); // rotate every 6 seconds
+                // Advance the image index for the current tile
+                const imgList = products[tileToRotate].imgs || [products[tileToRotate].img];
+                imgIndices[tileToRotate] = (imgIndices[tileToRotate] + 1) % imgList.length;
+                // Find and fade just that tile's image
+                const tiles = g.querySelectorAll('a');
+                if (tiles[tileToRotate]) {
+                    const img = tiles[tileToRotate].querySelector('img');
+                    if (img) {
+                        img.style.transition = 'opacity 0.5s ease';
+                        img.style.opacity = '0';
+                        setTimeout(() => {
+                            img.src = imgList[imgIndices[tileToRotate]];
+                            img.style.opacity = '0.85';
+                        }, 500);
+                    }
+                }
+                // Move to next tile
+                tileToRotate = (tileToRotate + 1) % products.length;
+            }, 3000); // rotate one tile every 3 seconds (full cycle every 12s for 4 tiles)
         }
 
         function renderBoxOffice(data) {
