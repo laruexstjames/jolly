@@ -1,0 +1,8 @@
+# Jollywood Insider - ads.txt
+# https://www.jollywoodinsider.com
+
+# Google AdSense
+google.com, pub-9732868041262758, DIRECT, f08c47fec0942fa0
+
+# Adsterra
+adsterra.com, 5792710, DIRECT
