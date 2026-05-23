@@ -259,6 +259,63 @@
         #infiniteScrollSentinel { height: 60px; display: flex; align-items: center; justify-content: center; }
         .infinite-loading { display: none; }
         .infinite-loading.active { display: flex; align-items: center; gap: 8px; color: #d4af37; font-size: 14px; }
+
+        /* ===== STICKY FOOTER AD ===== */
+        #stickyFooterAd {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 9000;
+            background: rgba(10,10,15,0.97);
+            border-top: 1px solid rgba(212,175,55,0.2);
+            padding: 6px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            backdrop-filter: blur(8px);
+        }
+        #stickyFooterAd .sticky-ad-close {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #9ca3af;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        #stickyFooterAd .sticky-ad-close:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        #stickyFooterAd .sticky-ad-label { font-size: 9px; color: #4b5563; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+        /* Push body up so content isn't hidden behind sticky ad */
+        body.has-sticky-ad { padding-bottom: 90px; }
+
+        /* ===== SIDEBAR STICKY AD ===== */
+        .sidebar-sticky-ad-wrap {
+            position: sticky;
+            top: 80px;
+        }
+
+        /* ===== BETWEEN-ARTICLE ADSTERRA UNIT ===== */
+        .between-article-ad {
+            margin: 4px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(18,18,26,0.6);
+            border: 1px dashed rgba(212,175,55,0.2);
+            padding: 8px;
+            text-align: center;
+        }
+        .between-article-ad .ad-label { font-size: 9px; color: #4b5563; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
     </style>
     <!-- Canonical Domain -->
     <link rel="canonical" href="https://www.jollywoodinsider.com/" />
@@ -267,6 +324,10 @@
     <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-9732868041262758">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9732868041262758" crossorigin="anonymous"></script>
+    <!-- Monetag Push Notifications & SmartLink -->
+    <script src="https://cdn.monetag.com/push-sdk/v1/push.min.js" data-zone="9297327" async></script>
+    <!-- Monetag Interstitial/Popunder -->
+    <script>(function(d,z,s){s.src='https://'+d+'/401/'+z;try{(document.body||document.documentElement).appendChild(s)}catch(e){}})('groleegni.net',9297328,document.createElement('script'))</script>
 </head>
 <body class="font-sans antialiased">
     <!-- Google Tag Manager (noscript) -->
@@ -689,11 +750,25 @@
                     <p class="text-xs text-gray-600 mt-3 text-center">Affiliate links · We may earn a commission</p>
                 </div>
 
-                <!-- Sidebar Ad -->
-                <div class="adsense-box rounded-lg p-4 text-center">
-                    <p class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Advertisement</p>
-                    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9732868041262758" data-ad-slot="3456789012" data-ad-format="auto" data-full-width-responsive="true"></ins>
-                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                <!-- Sidebar Ad (Sticky) -->
+                <div class="sidebar-sticky-ad-wrap space-y-4">
+                    <div class="adsense-box rounded-lg p-4 text-center">
+                        <p class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Advertisement</p>
+                        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9732868041262758" data-ad-slot="3456789012" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                    </div>
+                    <!-- Monetag In-Page Push Ad -->
+                    <div class="rounded-lg overflow-hidden" style="min-height:90px;">
+                        <p class="text-xs text-gray-600 mb-1 uppercase tracking-wider text-center">Sponsored</p>
+                        <script async="async" data-cfasync="false" src="//pl29366063.profitablecpmratenetwork.com/1ad9c33c7c09ccf1c07c6b4f24b2fcf1/invoke.js"></script>
+                        <div id="container-1ad9c33c7c09ccf1c07c6b4f24b2fcf1-sidebar"></div>
+                    </div>
+                    <!-- Second Sidebar AdSense Unit (300x600 half-page) -->
+                    <div class="adsense-box rounded-lg p-4 text-center">
+                        <p class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Advertisement</p>
+                        <ins class="adsbygoogle" style="display:block;min-height:250px;" data-ad-client="ca-pub-9732868041262758" data-ad-slot="2345678901" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                    </div>
                 </div>
 
                 <!-- Release Calendar -->
@@ -1728,6 +1803,7 @@
             updateTimestamp();
             initPoll();
             initInfiniteScroll();
+            initStickyFooterAd();
             // Check notification permission state on load
             if ('Notification' in window && Notification.permission === 'granted') {
                 _notifGranted = true;
@@ -1736,6 +1812,29 @@
             }
             setInterval(refreshAllData, 1800000);
         });
+
+        function initStickyFooterAd() {
+            const ad = document.getElementById('stickyFooterAd');
+            if (!ad) return;
+            document.body.classList.add('has-sticky-ad');
+            // Push the sticky AdSense unit
+            try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
+            // Auto-hide after 15 minutes of inactivity
+            let hideTimer = setTimeout(() => {
+                ad.style.display = 'none';
+                document.body.classList.remove('has-sticky-ad');
+            }, 900000);
+            // Reset timer on user interaction
+            ['click','scroll','keydown'].forEach(evt => {
+                document.addEventListener(evt, () => {
+                    clearTimeout(hideTimer);
+                    hideTimer = setTimeout(() => {
+                        ad.style.display = 'none';
+                        document.body.classList.remove('has-sticky-ad');
+                    }, 900000);
+                }, { once: false, passive: true });
+            });
+        }
 
         async function loadAllData() {
             await Promise.all([loadBoxOfficeData(), loadNewsData()]);
@@ -2067,9 +2166,27 @@
                         </a>`; }).join('')}
                     </div>
                 </div>` : '';
-            const firstHalf = cards.slice(0, midIndex).join('');
-            const secondHalf = cards.slice(midIndex).join('');
+            // Inject between-article Adsterra units every 3rd card
+            const betweenAdHTML = `
+                <div class="between-article-ad">
+                    <p class="ad-label">Advertisement</p>
+                    <ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-9732868041262758" data-ad-slot="1370130441" data-ad-format="fluid" data-ad-layout-key="-fb+5w+4e-db+86" data-full-width-responsive="true"></ins>
+                    <script>(adsbygoogle = window.adsbygoogle || []).push({});<\/script>
+                </div>`;
+            const interleavedCards = [];
+            cards.forEach((card, i) => {
+                interleavedCards.push(card);
+                // Insert between-article ad after every 3rd card (not after the last one)
+                if ((i + 1) % 3 === 0 && i < cards.length - 1) {
+                    interleavedCards.push(betweenAdHTML);
+                }
+            });
+            const midIndexNew = Math.floor(interleavedCards.length / 2);
+            const firstHalf = interleavedCards.slice(0, midIndexNew).join('');
+            const secondHalf = interleavedCards.slice(midIndexNew).join('');
             container.innerHTML = firstHalf + sponsoredBlock + secondHalf;
+            // Push AdSense for any new units injected dynamically
+            try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
             // Start live rotation of sponsored products
             startSponsoredRotation(filter, filtered);
             // Background OG image upgrade — runs after a short delay to not block render
@@ -2564,6 +2681,13 @@
             }
         });
     </script>
+
+    <!-- Sticky Footer Leaderboard Ad -->
+    <div id="stickyFooterAd">
+        <span class="sticky-ad-label">Advertisement</span>
+        <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px;max-width:calc(100vw - 120px);" data-ad-client="ca-pub-9732868041262758" data-ad-slot="6622457129" data-ad-format="horizontal" data-full-width-responsive="false"></ins>
+        <button class="sticky-ad-close" onclick="document.getElementById('stickyFooterAd').style.display='none';document.body.classList.remove('has-sticky-ad');" aria-label="Close ad"><i class="fas fa-times"></i></button>
+    </div>
 
     <!-- Trailer Modal -->
     <div id="trailerModal" role="dialog" aria-modal="true" aria-label="Movie Trailer" onclick="if(event.target===this)closeTrailer()">
