@@ -1578,7 +1578,7 @@
                 variety: 'https://variety.com/feed/',
                 thr: 'https://www.hollywoodreporter.com/feed/',
                 deadline: 'https://deadline.com/feed/',
-                wrap: 'https://thewrap.com/feed/',
+                wrap: 'https://www.thewrap.com/rss/',
                 indiewire: 'https://www.indiewire.com/feed/',
                 billboard: 'https://www.billboard.com/feed/',
                 screenrant: 'https://screenrant.com/feed/',
@@ -1843,12 +1843,14 @@
                 // Always show a thumbnail — use real image with category fallback on error
                 const thumbSrc = (news.image && !news.image.includes('undefined')) ? safeURL(news.image) : getImageForCategory(news.type);
                 const fallbackSrc = getImageForCategory(news.type);
-                const isUsingFallback = !news.image || news.image.includes('unsplash') || news.image.includes('/img/');
+                // Always try OG fetch for sources known to have no feed images
+                const noFeedImgSources = ['thr','indiewire','billboard','wrap','thrMovies'];
+                const needsOGFetch = !news.image || news.image.includes('unsplash') || news.image.includes('/img/') || noFeedImgSources.includes((news.source||'').toLowerCase());
                 return `
                 <article class="news-card glass-panel rounded-xl overflow-hidden border border-hollywood-gold/10 transition-all duration-300" data-type="${sanitizeHTML(news.type)}">
                     <div class="md:flex">
                         <div class="md:w-1/3 relative h-48 md:h-auto overflow-hidden bg-hollywood-800">
-                            <img src="${thumbSrc}" alt="${safeTitle}" class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity transform hover:scale-105 duration-500" onerror="this.src='${fallbackSrc}'; this.onerror=null;"${isUsingFallback ? ` data-article-url="${safeURL(news.url)}"` : ''}>
+                            <img src="${thumbSrc}" alt="${safeTitle}" class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity transform hover:scale-105 duration-500" onerror="this.src='${fallbackSrc}'; this.onerror=null;"${needsOGFetch ? ` data-article-url="${safeURL(news.url)}"` : ''}>
                             <div class="absolute top-2 left-2 px-2 py-1 bg-hollywood-900/80 text-hollywood-gold text-xs font-bold rounded border border-hollywood-gold/20 backdrop-blur-sm">
                                 <i class="fas fa-rss mr-1"></i>${safeSource}
                             </div>
@@ -1966,26 +1968,29 @@
         // OG image cache to avoid duplicate fetches
         const _ogImageCache = {};
 
-        // Background OG image fetcher — upgrades fallback Unsplash images with real article thumbnails
-        // Uses microlink.io free tier (rate limited but sufficient for background upgrades)
+        // Background OG image fetcher — upgrades fallback/missing images with real article thumbnails
+        // Uses microlink.io free tier. Processes all articles tagged with data-article-url.
         async function fetchOGImages() {
             const feed = document.getElementById('newsFeed');
             if (!feed) return;
-            const imgs = feed.querySelectorAll('article img[data-article-url]');
-            // Process in small batches to avoid rate limiting (3 at a time, 800ms apart)
-            const batch = Array.from(imgs).filter(img => {
-                const src = img.src || '';
-                return src.includes('unsplash.com') || src.includes('/img/');
-            }).slice(0, 15); // max 15 upgrades per render
+            // Fetch for ALL tagged articles — not just those already showing fallbacks
+            const allTagged = Array.from(feed.querySelectorAll('article img[data-article-url]'));
+            const batch = allTagged.filter(img => {
+                const url = img.getAttribute('data-article-url');
+                return url && _ogImageCache[url] !== 'failed';
+            }).slice(0, 20); // up to 20 per render cycle
             for (let i = 0; i < batch.length; i++) {
                 const img = batch[i];
                 const articleUrl = img.getAttribute('data-article-url');
-                if (!articleUrl || _ogImageCache[articleUrl] === 'failed') continue;
-                if (_ogImageCache[articleUrl]) {
-                    // Already fetched — swap immediately
-                    img.style.transition = 'opacity 0.4s';
-                    img.style.opacity = '0';
-                    setTimeout(() => { img.src = _ogImageCache[articleUrl]; img.style.opacity = '0.8'; }, 400);
+                if (!articleUrl) continue;
+                if (_ogImageCache[articleUrl] && _ogImageCache[articleUrl] !== 'failed') {
+                    // Already fetched — swap immediately if still showing fallback
+                    const src = img.src || '';
+                    if (src.includes('unsplash.com') || src.includes('/img/')) {
+                        img.style.transition = 'opacity 0.4s';
+                        img.style.opacity = '0';
+                        setTimeout(() => { img.src = _ogImageCache[articleUrl]; img.style.opacity = '0.8'; }, 400);
+                    }
                     continue;
                 }
                 try {
@@ -2002,8 +2007,8 @@
                         _ogImageCache[articleUrl] = 'failed';
                     }
                 } catch(e) { _ogImageCache[articleUrl] = 'failed'; }
-                // Stagger requests to avoid rate limiting
-                if (i < batch.length - 1) await new Promise(res => setTimeout(res, 800));
+                // Stagger requests — 600ms apart to stay within microlink free tier
+                if (i < batch.length - 1) await new Promise(res => setTimeout(res, 600));
             }
         }
 
