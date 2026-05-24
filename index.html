@@ -658,24 +658,7 @@
             <!-- Right Column: Sidebar -->
             <div class="space-y-8">
                 
-<!-- LIVE Box Office Widget -->
-                <div id="boxoffice" class="glass-panel rounded-2xl p-6 border border-hollywood-gold/10">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-serif text-xl font-bold text-white">Box Office Live</h3>
-                        <div class="flex items-center space-x-2">
-                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                            <span class="text-xs text-green-400">BOM Connected</span>
-                        </div>
-                    </div>
-                    <div id="boxOfficeWidget" class="space-y-4">
-                        <div class="loading-skeleton h-12 rounded-lg"></div>
-                        <div class="loading-skeleton h-12 rounded-lg"></div>
-                        <div class="loading-skeleton h-12 rounded-lg"></div>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-hollywood-gold/10">
-                        <p class="text-xs text-gray-500 text-center">Source: Box Office Mojo • Updated hourly</p>
-                    </div>
-                </div>
+
 
                 <!-- Amazon Associates Sidebar Widget -->
                 <div class="glass-panel rounded-2xl p-5 border border-yellow-500/20 bg-gradient-to-b from-yellow-500/5 to-transparent">
@@ -2095,6 +2078,8 @@
             const AD_SLOTS = ["2999052677", "9560214292", "4549457972", "7301259761"];
             
             const interleavedCards = [];
+            let firstAdIndex = -1;
+            
             cards.forEach((card, i) => {
                 interleavedCards.push(card);
                 // Insert different ads after every 4 articles
@@ -2112,12 +2097,46 @@
                             <script>(adsbygoogle = window.adsbygoogle || []).push({});<\/script>
                         </div>`;
                     interleavedCards.push(adHTML);
+                    if (firstAdIndex === -1) firstAdIndex = interleavedCards.length - 1;
                 }
             });
+
+            // Box Office Live Widget (moved from sidebar)
+            const boxOfficeHTML = `
+                <div id="boxoffice" class="glass-panel rounded-2xl p-8 border border-hollywood-gold/10 my-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-serif text-2xl font-bold text-white">Box Office Live</h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            <span class="text-xs text-green-400 uppercase tracking-widest font-bold">BOM Connected</span>
+                        </div>
+                    </div>
+                    <div id="boxOfficeWidget" class="grid md:grid-cols-3 gap-4">
+                        <div class="loading-skeleton h-12 rounded-lg"></div>
+                        <div class="loading-skeleton h-12 rounded-lg"></div>
+                        <div class="loading-skeleton h-12 rounded-lg"></div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-hollywood-gold/10">
+                        <p class="text-xs text-gray-500 text-center">Source: Box Office Mojo • Updated hourly</p>
+                    </div>
+                </div>`;
+
+            // Inject Box Office after the first ad if it exists, otherwise at the top
+            if (firstAdIndex !== -1) {
+                interleavedCards.splice(firstAdIndex + 1, 0, boxOfficeHTML);
+            } else {
+                interleavedCards.unshift(boxOfficeHTML);
+            }
+
             const midIndexNew = Math.floor(interleavedCards.length / 2);
             const firstHalf = interleavedCards.slice(0, midIndexNew).join('');
             const secondHalf = interleavedCards.slice(midIndexNew).join('');
             container.innerHTML = firstHalf + sponsoredBlock + secondHalf;
+            
+            // Re-render box office data into the new container
+            if (currentBoxOfficeData && currentBoxOfficeData.length > 0) {
+                renderBoxOffice(currentBoxOfficeData);
+            }
             // Push AdSense for any new units injected dynamically
             try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
             // Start live rotation of sponsored products
