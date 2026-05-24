@@ -1882,7 +1882,6 @@
             await Promise.all([loadBoxOfficeData(), loadNewsData()]);
             updateTimestamp();
             renderHotRightNow();
-            initInfiniteScroll();
             // Update ticker with RSS headlines now that news is loaded
             updateTicker(currentBoxOfficeData);
         }
