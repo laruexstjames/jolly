@@ -2117,11 +2117,22 @@
                                 <script>(adsbygoogle = window.adsbygoogle || []).push({});<\/script>
                             </div>`;
                     } else {
+                        // Use a placeholder and inject the script after innerHTML is set
+                        const adId = `adsterra-feed-${adIndex}`;
                         adHTML = `
                             <div class="between-article-ad my-8">
                                 <p class="ad-label">Sponsored</p>
-                                <script src="https://pl29487584.effectivecpmnetwork.com/4c/c0/9a/4cc09ad4c464ba3b522c713717d4b10c.js"></script>
+                                <div id="${adId}"></div>
                             </div>`;
+                        // Queue the script injection
+                        setTimeout(() => {
+                            const container = document.getElementById(adId);
+                            if (container) {
+                                const s = document.createElement('script');
+                                s.src = 'https://pl29487584.effectivecpmnetwork.com/4c/c0/9a/4cc09ad4c464ba3b522c713717d4b10c.js';
+                                container.appendChild(s);
+                            }
+                        }, 100);
                     }
                     interleavedCards.push(adHTML);
                 }
