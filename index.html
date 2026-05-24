@@ -101,12 +101,17 @@
         .premium-badge {
             background: linear-gradient(135deg, #d4af37, #b8941f);
         }
-        .ticker-wrap { overflow: hidden; white-space: nowrap; }
+        .ticker-wrap { overflow: hidden; white-space: nowrap; width: 100%; }
         .ticker-content {
             display: inline-block;
-            animation: ticker 50s linear infinite;
+            white-space: nowrap;
+            animation: ticker-scroll 60s linear infinite;
         }
         .ticker-content:hover { animation-play-state: paused; }
+        @keyframes ticker-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
         .adsense-box {
             background: rgba(18, 18, 26, 0.8);
             border: 1px dashed rgba(212, 175, 55, 0.3);
