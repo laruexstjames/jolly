@@ -686,7 +686,7 @@
                     </div>
                     <div class="space-y-3">
                         <a href="https://www.amazon.com/amazonprime?tag=jollyb-20" target="_blank" rel="noopener sponsored" class="flex items-center gap-3 p-3 bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
-                            <img src="/img/prime-video-card.jpg" alt="Amazon Prime Video" class="w-16 h-10 object-cover rounded flex-shrink-0 opacity-90 group-hover:opacity-100 transition-opacity">
+                            <img src="/img/prime-video-card.jpg" alt="Amazon Prime Video" class="w-12 h-12 object-cover rounded flex-shrink-0 opacity-90 group-hover:opacity-100 transition-opacity">
                             <div class="min-w-0">
                                 <p class="text-white text-xs font-bold group-hover:text-yellow-400 transition-colors">Prime Video</p>
                                 <p class="text-gray-500 text-xs">Stream movies &amp; shows</p>
@@ -694,7 +694,7 @@
                             <i class="fas fa-chevron-right text-gray-600 text-xs ml-auto"></i>
                         </a>
                         <a href="https://www.amazon.com/s?k=hollywood+filmmaking+books&tag=jollyb-20" target="_blank" rel="noopener sponsored" class="flex items-center gap-3 p-3 bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
-                            <img src="/img/film-books-card.jpg" alt="Hollywood Filmmaking Books" class="w-16 h-10 object-cover rounded flex-shrink-0 opacity-90 group-hover:opacity-100 transition-opacity">
+                            <img src="/img/film-books-card.jpg" alt="Hollywood Filmmaking Books" class="w-12 h-12 object-cover rounded flex-shrink-0 opacity-90 group-hover:opacity-100 transition-opacity">
                             <div class="min-w-0">
                                 <p class="text-white text-xs font-bold group-hover:text-yellow-400 transition-colors">Filmmaking Books</p>
                                 <p class="text-gray-500 text-xs">Scripts, directing &amp; more</p>
@@ -702,7 +702,7 @@
                             <i class="fas fa-chevron-right text-gray-600 text-xs ml-auto"></i>
                         </a>
                         <a href="https://www.audible.com/ep/freetrial?tag=jollyb-20" target="_blank" rel="noopener sponsored" class="flex items-center gap-3 p-3 bg-hollywood-900/60 rounded-lg border border-yellow-500/10 hover:border-yellow-500/40 transition-all group overflow-hidden">
-                            <img src="/img/audible-card.jpg" alt="Audible Free Trial" class="w-16 h-10 object-cover rounded flex-shrink-0 opacity-90 group-hover:opacity-100 transition-opacity">
+                            <img src="/img/audible-card.jpg" alt="Audible Free Trial" class="w-12 h-12 object-cover rounded flex-shrink-0 opacity-90 group-hover:opacity-100 transition-opacity">
                             <div class="min-w-0">
                                 <p class="text-white text-xs font-bold group-hover:text-yellow-400 transition-colors">Audible Free Trial</p>
                                 <p class="text-gray-500 text-xs">Hollywood memoirs &amp; scripts</p>
@@ -726,6 +726,23 @@
                         <script async="async" data-cfasync="false" src="//pl29366063.profitablecpmratenetwork.com/1ad9c33c7c09ccf1c07c6b4f24b2fcf1/invoke.js"></script>
                         <div id="container-1ad9c33c7c09ccf1c07c6b4f24b2fcf1-sidebar"></div>
                     </div>
+
+                    <!-- Live Poll Widget (Moved here) -->
+                    <div class="glass-panel rounded-2xl p-6 border border-hollywood-gold/10" id="pollWidget">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-8 h-8 rounded-full bg-hollywood-gold/15 flex items-center justify-center">
+                                <i class="fas fa-poll text-hollywood-gold text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-serif text-base font-bold text-white">Weekly Hollywood Poll</h3>
+                                <p class="text-xs text-gray-500">Vote &amp; see live results</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-300 mb-4 font-medium" id="pollQuestion">Who should be the next James Bond?</p>
+                        <div class="space-y-2" id="pollOptions"></div>
+                        <p class="text-xs text-gray-600 mt-3 text-center" id="pollVoteCount">Loading votes...</p>
+                    </div>
+
                     <!-- Second Sidebar AdSense Unit (300x600 half-page) -->
                     <div class="adsense-box rounded-lg p-4 text-center">
                         <p class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Advertisement</p>
@@ -883,21 +900,7 @@
                     <p class="text-xs text-gray-600 mt-3 text-center">Join 50,000+ industry professionals</p>
                 </div>
 
-                <!-- Live Poll Widget -->
-                <div class="glass-panel rounded-2xl p-6 border border-hollywood-gold/10" id="pollWidget">
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="w-8 h-8 rounded-full bg-hollywood-gold/15 flex items-center justify-center">
-                            <i class="fas fa-poll text-hollywood-gold text-sm"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-serif text-base font-bold text-white">Weekly Hollywood Poll</h3>
-                            <p class="text-xs text-gray-500">Vote &amp; see live results</p>
-                        </div>
-                    </div>
-                    <p class="text-sm text-gray-300 mb-4 font-medium" id="pollQuestion">Who should be the next James Bond?</p>
-                    <div class="space-y-2" id="pollOptions"></div>
-                    <p class="text-xs text-gray-600 mt-3 text-center" id="pollVoteCount">Loading votes...</p>
-                </div>
+
 
                 <!-- Hot Right Now Widget -->
                 <div class="glass-panel rounded-2xl p-6 border border-hollywood-gold/10">
@@ -2081,7 +2084,7 @@
                     <div id="sponsored-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;transition:opacity 0.5s ease;">
                         ${sponsoredProducts.map(p => { const firstImg = (p.imgs || [p.img])[0]; return `
                         <a href="${p.url}" target="_blank" rel="noopener sponsored" style="display:block;border-radius:10px;overflow:hidden;border:1px solid rgba(212,175,55,0.12);background:#0a0a0f;text-decoration:none;transition:border-color 0.2s,transform 0.2s;" onmouseover="this.style.borderColor='rgba(212,175,55,0.5)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(212,175,55,0.12)';this.style.transform='translateY(0)'">
-                            <div style="width:100%;aspect-ratio:16/9;overflow:hidden;background:#111;">
+                            <div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:#111;">
                                 <img src="${firstImg}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;opacity:0.9;transition:opacity 0.3s,transform 0.4s;" onmouseover="this.style.opacity='1';this.style.transform='scale(1.05)'" onmouseout="this.style.opacity='0.9';this.style.transform='scale(1)'" onerror="this.src='/img/prime-video-card.jpg'">
                             </div>
                             <div style="padding:8px 10px 10px;">
