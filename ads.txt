@@ -4,7 +4,9 @@
 # Google AdSense
 google.com, pub-9732868041262758, DIRECT, f08c47fec0942fa0
 
-# Adsterra (Removed)
+# Adsterra
+adsterra.com, 5792710, DIRECT
+effectivecpmnetwork.com, 5792710, DIRECT
 
 # Monetag
 monetag.com, 9297327, DIRECT
