@@ -670,19 +670,14 @@
                     <div class="loading-skeleton h-48 rounded-xl"></div>
                 </div>
 
-                <!-- Infinite Scroll Sentinel + Load More Fallback -->
-                <div id="infiniteScrollSentinel">
-                    <div class="infinite-loading" id="infiniteLoading">
-                        <i class="fas fa-spinner fa-spin text-hollywood-gold"></i>
-                        <span class="text-sm text-gray-400">Loading more stories...</span>
-                    </div>
-                </div>
-                <div class="text-center pt-2 flex flex-wrap gap-3 justify-center" id="loadMoreArea">
-                    <button onclick="loadMoreNews()" id="loadMoreBtn" class="px-8 py-3 border border-hollywood-gold/30 text-hollywood-gold rounded-lg font-semibold hover:bg-hollywood-gold/10 transition-all">
+                <!-- Load More Area -->
+                <div class="text-center pt-8 flex flex-col items-center gap-4" id="loadMoreArea">
+                    <button onclick="loadMoreNews()" id="loadMoreBtn" class="px-12 py-4 bg-hollywood-gold/10 border border-hollywood-gold/30 text-hollywood-gold rounded-xl font-bold hover:bg-hollywood-gold/20 transition-all shadow-lg shadow-hollywood-gold/5">
                         Load More Intel <i class="fas fa-chevron-down ml-2"></i>
                     </button>
-                    <a href="https://www.effectivecpmnetwork.com/uicyvzqdm?key=837fed12cbc453ba09937b99b25df481" target="_blank" rel="noopener" class="px-8 py-3 border border-gray-600 text-gray-300 rounded-lg font-semibold hover:bg-gray-800 transition-all flex items-center">
-                        <i class="fas fa-search mr-2"></i> Discover More
+                    <p id="newsCountLabel" class="text-xs text-gray-500 uppercase tracking-widest"></p>
+                    <a href="https://www.effectivecpmnetwork.com/uicyvzqdm?key=837fed12cbc453ba09937b99b25df481" target="_blank" rel="noopener" class="text-gray-400 hover:text-white text-sm transition-colors flex items-center">
+                        <i class="fas fa-search mr-2"></i> Discover more industry news &rarr;
                     </a>
                 </div>
 
@@ -1529,6 +1524,7 @@
         let selectedPlan = 'annual';
         let currentNewsData = [];
         let currentBoxOfficeData = [];
+        let visibleArticleCount = 25;
 
         // ==================== AUTH STATE MANAGEMENT ====================
 
@@ -2113,12 +2109,29 @@
 
         function renderNews(filter) {
             const container = document.getElementById('newsFeed');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const countLabel = document.getElementById('newsCountLabel');
+            
             const filtered = filter === 'all' ? currentNewsData : currentNewsData.filter(n => n.type === filter);
+            
             if (filtered.length === 0) {
                 container.innerHTML = '<div class="text-center py-12 text-gray-500">No articles found for this category.</div>';
+                if (loadMoreBtn) loadMoreBtn.style.display = 'none';
                 return;
             }
-            const cards = filtered.map(news => {
+
+            // Slice to visible count
+            const visibleBatch = filtered.slice(0, visibleArticleCount);
+            
+            // Update UI state
+            if (loadMoreBtn) {
+                loadMoreBtn.style.display = visibleArticleCount >= filtered.length ? 'none' : 'inline-block';
+            }
+            if (countLabel) {
+                countLabel.textContent = `Showing ${visibleBatch.length} of ${filtered.length} stories`;
+            }
+
+            const cards = visibleBatch.map(news => {
                 const sourceKey = news.source.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
                 const sourceClass = `source-badge-${sourceKey}`;
                 const timeAgo = getTimeAgo(news.published);
@@ -2207,19 +2220,27 @@
                         </a>`; }).join('')}
                     </div>
                 </div>` : '';
-            // Inject between-article Adsterra units every 3rd card
-            const betweenAdHTML = `
-                <div class="between-article-ad">
-                    <p class="ad-label">Advertisement</p>
-                    <ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-9732868041262758" data-ad-slot="2999052677" data-ad-format="fluid" data-ad-layout-key="-fb+5w+4e-db+86" data-full-width-responsive="true"></ins>
-                    <script>(adsbygoogle = window.adsbygoogle || []).push({});<\/script>
-                </div>`;
+            // Rotating Ad Slots for variety
+            const AD_SLOTS = ["2999052677", "9560214292", "4549457972", "7301259761"];
+            
             const interleavedCards = [];
             cards.forEach((card, i) => {
                 interleavedCards.push(card);
-                // Insert between-article ad after every 3rd card (not after the last one)
-                if ((i + 1) % 3 === 0 && i < cards.length - 1) {
-                    interleavedCards.push(betweenAdHTML);
+                // Insert different ads after every 4 articles
+                if ((i + 1) % 4 === 0 && i < cards.length - 1) {
+                    const slotId = AD_SLOTS[Math.floor(i / 4) % AD_SLOTS.length];
+                    const adHTML = `
+                        <div class="between-article-ad my-8">
+                            <p class="ad-label">Advertisement</p>
+                            <ins class="adsbygoogle" style="display:block;" 
+                                 data-ad-client="ca-pub-9732868041262758" 
+                                 data-ad-slot="${slotId}" 
+                                 data-ad-format="fluid" 
+                                 data-ad-layout-key="-fb+5w+4e-db+86" 
+                                 data-full-width-responsive="true"></ins>
+                            <script>(adsbygoogle = window.adsbygoogle || []).push({});<\/script>
+                        </div>`;
+                    interleavedCards.push(adHTML);
                 }
             });
             const midIndexNew = Math.floor(interleavedCards.length / 2);
@@ -2595,43 +2616,25 @@
             initPoll();
         }
 
-        // --- 9. Infinite Scroll ---
-        let _infiniteScrollObserver = null;
-        let _infiniteScrollLoading = false;
-        function initInfiniteScroll() {
-            if (_infiniteScrollObserver) { _infiniteScrollObserver.disconnect(); }
-            const sentinel = document.getElementById('infiniteScrollSentinel');
-            if (!sentinel) return;
-            _infiniteScrollObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && !_infiniteScrollLoading) {
-                        _infiniteScrollLoading = true;
-                        const loader = document.getElementById('infiniteLoading');
-                        if (loader) loader.classList.add('active');
-                        setTimeout(() => {
-                            loadMoreNewsAuto();
-                            _infiniteScrollLoading = false;
-                            if (loader) loader.classList.remove('active');
-                        }, 800);
-                    }
-                });
-            }, { rootMargin: '200px' });
-            _infiniteScrollObserver.observe(sentinel);
-        }
-        function loadMoreNewsAuto() {
-            if (!currentNewsData || currentNewsData.length === 0) return;
-            const more = currentNewsData.slice(0, 4).map(n => ({
-                ...n,
-                id: n.id + '-inf-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
-                title: n.title,
-                published: new Date(new Date(n.published).getTime() - 86400000 * (1 + Math.floor(Math.random() * 3))).toISOString()
-            }));
-            currentNewsData.push(...more);
-            const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
-            renderNews(activeFilter);
-            initInfiniteScroll(); // re-observe after re-render
-            // Send push notification for first new article
-            if (more.length > 0) sendBreakingNotification(more[0].title.substring(0, 80));
+        // --- 9. Manual Pagination ---
+        function loadMoreNews() {
+            const btn = document.getElementById('loadMoreBtn');
+            if (!btn) return;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading Intel...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                visibleArticleCount += 15; // Load 15 more at a time
+                const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+                renderNews(activeFilter);
+                
+                btn.innerHTML = 'Load More Intel <i class="fas fa-chevron-down ml-2"></i>';
+                btn.disabled = false;
+                
+                // Scroll slightly to show new content
+                window.scrollBy({ top: 300, behavior: 'smooth' });
+            }, 600);
         }
 
         function getTimeAgo(dateString) {
@@ -2648,6 +2651,9 @@
         }
 
         function filterNews(type) {
+            // Reset visible count on filter change
+            visibleArticleCount = 25;
+            
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 if (btn.dataset.filter === type) {
                     btn.classList.add('bg-hollywood-gold/20', 'text-hollywood-gold', 'border-hollywood-gold/30');
@@ -2666,21 +2672,6 @@
                 container.style.opacity = '1';
                 container.style.transform = 'translateY(0)';
             }, 200);
-        }
-
-        function loadMoreNews() {
-            const btn = event.target;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading...';
-            setTimeout(() => {
-                const more = currentNewsData.slice(0, 3).map(n => ({
-                    ...n, 
-                    id: n.id + '-more-' + Date.now(),
-                    title: 'Related: ' + n.title
-                }));
-                currentNewsData.push(...more);
-                renderNews(document.querySelector('.filter-btn.active')?.dataset.filter || 'all');
-                btn.innerHTML = 'Load More Intel <i class="fas fa-chevron-down ml-2"></i>';
-            }, 1000);
         }
 
         function openArticle(id) {
