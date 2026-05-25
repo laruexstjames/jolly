@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | Jollywood Insider</title>
+    <meta name="description" content="Contact Jollywood Insider - Reach out with questions, feedback, or partnership inquiries.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #0a0a0f; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+        h1, h2 { font-family: 'Playfair Display', serif; color: #d4af37; }
+        .glass-panel {
+            background: rgba(26, 26, 46, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        input, textarea { background-color: rgba(18, 18, 26, 0.8); border: 1px solid rgba(212, 175, 55, 0.3); color: #e5e7eb; }
+        input:focus, textarea:focus { outline: none; border-color: #d4af37; }
+        button { background: linear-gradient(135deg, #d4af37, #b8941f); color: #0a0a0f; font-weight: 700; }
+        button:hover { background: linear-gradient(135deg, #f4e4ba, #d4af37); }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 py-12">
+        <h1 class="text-4xl font-bold mb-8">Contact Us</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div>
+                <h2 class="text-2xl font-bold mb-6">Get in Touch</h2>
+                <p class="mb-6">Have a question, suggestion, or partnership opportunity? We'd love to hear from you. Fill out the form or reach out directly using the contact information below.</p>
+                
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="font-bold mb-2">General Inquiries</h3>
+                        <p><a href="mailto:info@jollywoodinsider.com" class="text-gold hover:text-gold-light">info@jollywoodinsider.com</a></p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-2">Support & Technical Issues</h3>
+                        <p><a href="mailto:support@jollywoodinsider.com" class="text-gold hover:text-gold-light">support@jollywoodinsider.com</a></p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-2">Partnerships & Advertising</h3>
+                        <p><a href="mailto:partnerships@jollywoodinsider.com" class="text-gold hover:text-gold-light">partnerships@jollywoodinsider.com</a></p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-2">Privacy & Legal</h3>
+                        <p><a href="mailto:legal@jollywoodinsider.com" class="text-gold hover:text-gold-light">legal@jollywoodinsider.com</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-8 rounded-lg">
+                <h2 class="text-2xl font-bold mb-6">Send us a Message</h2>
+                <form id="contactForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Name</label>
+                        <input type="text" name="name" required class="w-full px-4 py-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Email</label>
+                        <input type="email" name="email" required class="w-full px-4 py-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Subject</label>
+                        <input type="text" name="subject" required class="w-full px-4 py-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Message</label>
+                        <textarea name="message" rows="5" required class="w-full px-4 py-2 rounded"></textarea>
+                    </div>
+                    <button type="submit" class="w-full px-4 py-2 rounded font-bold">Send Message</button>
+                </form>
+                <p class="text-sm text-gray-400 mt-4">We'll get back to you within 24 hours.</p>
+            </div>
+        </div>
+
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div class="glass-panel p-6 rounded-lg">
+                    <h3 class="font-bold mb-2">How often is the box office data updated?</h3>
+                    <p>Box office data is updated hourly from Box Office Mojo, ensuring you have the latest performance metrics.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-lg">
+                    <h3 class="font-bold mb-2">Can I subscribe to premium content?</h3>
+                    <p>Yes! We offer monthly ($9.99) and annual ($5.99/month) subscription plans for access to exclusive analysis and early releases.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-lg">
+                    <h3 class="font-bold mb-2">Is my data secure?</h3>
+                    <p>Absolutely. We use industry-standard encryption and security practices to protect your personal information. See our <a href="/privacy.html" class="text-gold">Privacy Policy</a> for details.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-lg">
+                    <h3 class="font-bold mb-2">How can I report an issue?</h3>
+                    <p>Please email us at <a href="mailto:support@jollywoodinsider.com" class="text-gold">support@jollywoodinsider.com</a> with details about the issue, and we'll investigate promptly.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="mt-12 pt-8 border-t border-gray-700">
+            <a href="/" class="text-gold hover:text-gold-light">← Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // In a real implementation, this would send to a backend service
+            console.log('Form submitted:', data);
+            alert('Thank you for your message! We will get back to you soon.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
