@@ -1,0 +1,4 @@
+file '/home/ubuntu/jolly/clip1.mp4'
+file '/home/ubuntu/jolly/clip2.mp4'
+file '/home/ubuntu/jolly/clip3.mp4'
+file '/home/ubuntu/jolly/clip4.mp4'
