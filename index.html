@@ -39,14 +39,14 @@
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     <meta name="language" content="English">
     <meta name="revisit-after" content="1 days">
-    <link rel="canonical" href="https://www.jollywoodinsider.com/">
+    <link rel="canonical" href="https://jollywoodinsider.com/">
     
     <!-- OpenGraph Tags for Social Sharing -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://www.jollywoodinsider.com/">
+    <meta property="og:url" content="https://jollywoodinsider.com/">
     <meta property="og:title" content="Jollywood Insider | Live Entertainment News & Box Office Intelligence">
     <meta property="og:description" content="Real-time entertainment industry news, live box office tracking, and insider intelligence. Updated hourly from verified sources.">
-    <meta property="og:image" content="https://www.jollywoodinsider.com/social_share_image.png">
+    <meta property="og:image" content="https://jollywoodinsider.com/social_share_image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="Jollywood Insider">
@@ -54,10 +54,10 @@
     
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://www.jollywoodinsider.com/">
+    <meta name="twitter:url" content="https://jollywoodinsider.com/">
     <meta name="twitter:title" content="Jollywood Insider | Live Entertainment News & Box Office Intelligence">
     <meta name="twitter:description" content="Real-time entertainment industry news, live box office tracking, and insider intelligence. Updated hourly from verified sources.">
-    <meta name="twitter:image" content="https://www.jollywoodinsider.com/social_share_image.png">
+    <meta name="twitter:image" content="https://jollywoodinsider.com/social_share_image.png">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -78,24 +78,24 @@
       "@context": "https://schema.org",
       "@type": "NewsMediaOrganization",
       "name": "Jollywood Insider",
-      "url": "https://www.jollywoodinsider.com",
-      "logo": "https://www.jollywoodinsider.com/favicon-192.png",
+      "url": "https://jollywoodinsider.com",
+      "logo": "https://jollywoodinsider.com/favicon-192.png",
       "description": "Real-time entertainment industry news, live box office tracking, and insider intelligence.",
       "sameAs": [
-        "https://www.jollywoodinsider.com"
+        "https://jollywoodinsider.com"
       ],
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "Customer Service",
-        "url": "https://www.jollywoodinsider.com"
+        "url": "https://jollywoodinsider.com"
       },
       "mainEntity": {
         "@type": "WebSite",
         "name": "Jollywood Insider",
-        "url": "https://www.jollywoodinsider.com",
+        "url": "https://jollywoodinsider.com",
         "potentialAction": {
           "@type": "SearchAction",
-          "target": "https://www.jollywoodinsider.com/?q={search_term_string}",
+          "target": "https://jollywoodinsider.com/?q={search_term_string}",
           "query-input": "required name=search_term_string"
         }
       }
@@ -112,7 +112,7 @@
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://www.jollywoodinsider.com"
+          "item": "https://jollywoodinsider.com"
         }
       ]
     }
@@ -407,10 +407,6 @@
         }
         .between-article-ad .ad-label { font-size: 9px; color: #4b5563; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
     </style>
-    <!-- Canonical Domain -->
-    <link rel="canonical" href="https://www.jollywoodinsider.com/" />
-    <meta property="og:url" content="https://www.jollywoodinsider.com/" />
-    <meta property="og:site_name" content="Jollywood Insider" />
     <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-9732868041262758">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9732868041262758" crossorigin="anonymous"></script>
@@ -2259,7 +2255,7 @@
                 const trendingViews = getTrendingViews(news.id, news.published);
                 const trendingLabel = trendingViews >= 1000 ? (trendingViews / 1000).toFixed(1) + 'k' : trendingViews;
                 // Social share URLs
-                const shareUrl = encodeURIComponent(safeArticleUrl !== '#' ? safeArticleUrl : 'https://www.jollywoodinsider.com');
+                const shareUrl = encodeURIComponent(safeArticleUrl !== '#' ? safeArticleUrl : 'https://jollywoodinsider.com');
                 const shareText = encodeURIComponent(news.title.substring(0, 100));
                 const twitterShareUrl = `https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`;
                 const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
@@ -2291,7 +2287,7 @@
                                     <!-- Social Share Buttons -->
                                     <a href="${twitterShareUrl}" target="_blank" rel="noopener noreferrer" class="share-btn share-btn-x" title="Share on X (Twitter)"><i class="fab fa-x-twitter"></i></a>
                                     <a href="${fbShareUrl}" target="_blank" rel="noopener noreferrer" class="share-btn share-btn-fb" title="Share on Facebook"><i class="fab fa-facebook-f"></i></a>
-                                    <button onclick="copyArticleLink('${safeArticleUrl !== '#' ? safeArticleUrl : 'https://www.jollywoodinsider.com'}')" class="share-btn share-btn-copy" title="Copy link"><i class="fas fa-link"></i></button>
+                                    <button onclick="copyArticleLink('${safeArticleUrl !== '#' ? safeArticleUrl : 'https://jollywoodinsider.com'}')" class="share-btn share-btn-copy" title="Copy link"><i class="fas fa-link"></i></button>
                                     ${(() => { const t = extractTitleFromHeadline(news.title); return t ? `<a href="${amazonPrimeLink(t)}" target="_blank" rel="noopener sponsored" title="Watch on Prime Video" class="text-xs px-2 py-1 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded hover:bg-yellow-500/20 transition-all"><i class="fab fa-amazon mr-1"></i>Prime</a>` : ''; })()}
                                     <a href="${safeArticleUrl}" target="_blank" rel="noopener noreferrer" class="text-hollywood-gold text-sm font-semibold hover:underline flex items-center group">
                                         Read Source <i class="fas fa-external-link-alt ml-1 text-xs group-hover:translate-x-1 transition-transform"></i>
