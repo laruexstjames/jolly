@@ -127,9 +127,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
-    <!-- Stripe -->
-    <script src="https://js.stripe.com/v3/"></script>
-    
     <script>
         tailwind.config = {
             theme: {
@@ -1004,8 +1001,8 @@
                 <div id="premiumCTA" class="glass-panel rounded-2xl p-6 border border-hollywood-gold/30 bg-gradient-to-b from-hollywood-gold/5 to-transparent">
                     <div class="text-center mb-6">
                         <i class="fas fa-crown text-4xl text-hollywood-gold mb-3"></i>
-                        <h3 class="font-serif text-xl font-bold text-white mb-2">Join The Inner Circle</h3>
-                        <p class="text-sm text-gray-400">Get exclusive leaks, early box office data, and insider casting news before anyone else.</p>
+                        <h3 class="font-serif text-xl font-bold text-white mb-2">Premium Membership Coming Soon</h3>
+                        <p class="text-sm text-gray-400">Premium access is being prepared. Verified plan details will appear here when checkout is ready.</p>
                     </div>
                     <ul class="space-y-3 mb-6 text-sm text-gray-300">
                         <li class="flex items-center"><i class="fas fa-check text-hollywood-gold mr-3"></i> Daily insider briefings</li>
@@ -1014,13 +1011,13 @@
                         <li class="flex items-center"><i class="fas fa-check text-hollywood-gold mr-3"></i> Weekly studio financial reports</li>
                         <li class="flex items-center"><i class="fas fa-check text-hollywood-gold mr-3"></i> Direct Q&A with industry vets</li>
                     </ul>
-                    <button onclick="startCheckout('monthly')" class="w-full py-3 premium-badge text-hollywood-900 rounded-lg font-bold hover:shadow-lg hover:shadow-hollywood-gold/30 transition-all mb-3">
-                        Subscribe $9.99/mo
+                    <button type="button" disabled class="w-full py-3 bg-gray-700 text-gray-400 rounded-lg font-bold cursor-not-allowed mb-3" aria-disabled="true">
+                        Premium checkout unavailable
                     </button>
-                    <button onclick="startCheckout('annual')" class="w-full py-2 border border-hollywood-gold/30 text-hollywood-gold rounded-lg text-sm font-semibold hover:bg-hollywood-gold/10 transition-all">
-                        Annual Save 40% — $5.99/mo
+                    <button type="button" disabled class="w-full py-2 border border-gray-700 text-gray-500 rounded-lg text-sm font-semibold cursor-not-allowed" aria-disabled="true">
+                        Plans will be announced here
                     </button>
-                    <p class="text-center text-xs text-gray-500 mt-3">Cancel anytime. 7-day free trial.</p>
+                    <p class="text-center text-xs text-gray-500 mt-3">No payment is being accepted at this time.</p>
                 </div>
 
                 <!-- Already Premium State (Hidden by default) -->
@@ -1492,38 +1489,35 @@
                         <div class="w-16 h-16 rounded-full bg-hollywood-gold/20 flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-crown text-3xl text-hollywood-gold"></i>
                         </div>
-                        <h2 class="font-serif text-3xl font-bold text-white mb-2">Go Premium</h2>
-                        <p class="text-gray-400">Unlock the full power of Jollywood Insider</p>
+                        <h2 class="font-serif text-3xl font-bold text-white mb-2">Premium Membership Coming Soon</h2>
+                        <p class="text-gray-400">Verified subscription plans will be available here once checkout is ready.</p>
                     </div>
 
                     <div class="space-y-4 mb-8">
-                        <div onclick="selectPlan('monthly')" id="planMonthly" class="flex items-center p-4 bg-hollywood-900/50 rounded-lg border border-hollywood-gold/10 cursor-pointer hover:border-hollywood-gold/30 transition-all">
+                        <div id="planMonthly" class="flex items-center p-4 bg-gray-900/50 rounded-lg border border-gray-700 opacity-60">
                             <div class="flex-1">
                                 <h3 class="text-white font-semibold">Monthly</h3>
                                 <p class="text-sm text-gray-500">Full access, cancel anytime</p>
                             </div>
                             <div class="text-right">
-                                <span class="text-2xl font-bold text-hollywood-gold">$9.99</span>
-                                <span class="text-xs text-gray-500 block">/month</span>
+                                <span class="text-sm font-bold text-gray-400">Coming soon</span>
                             </div>
                         </div>
-                        <div onclick="selectPlan('annual')" id="planAnnual" class="flex items-center p-4 bg-hollywood-gold/10 rounded-lg border border-hollywood-gold/30 relative cursor-pointer">
-                            <div class="absolute -top-3 left-4 px-2 py-0.5 bg-hollywood-gold text-hollywood-900 text-xs font-bold rounded">BEST VALUE</div>
+                        <div id="planAnnual" class="flex items-center p-4 bg-gray-900/50 rounded-lg border border-gray-700 relative opacity-60">
                             <div class="flex-1">
                                 <h3 class="text-white font-semibold">Annual</h3>
                                 <p class="text-sm text-gray-500">Save 40% with yearly billing</p>
                             </div>
                             <div class="text-right">
-                                <span class="text-2xl font-bold text-hollywood-gold">$5.99</span>
-                                <span class="text-xs text-gray-500 block">/month</span>
+                                <span class="text-sm font-bold text-gray-400">Coming soon</span>
                             </div>
                         </div>
                     </div>
 
-                    <button onclick="confirmCheckout()" id="checkoutBtn" class="w-full py-4 premium-badge text-hollywood-900 rounded-lg font-bold text-lg hover:shadow-xl hover:shadow-hollywood-gold/30 transition-all mb-4">
-                        Start Free Trial
+                    <button type="button" disabled id="checkoutBtn" class="w-full py-4 bg-gray-700 text-gray-400 rounded-lg font-bold text-lg cursor-not-allowed mb-4" aria-disabled="true">
+                        Checkout unavailable
                     </button>
-                    <p class="text-center text-xs text-gray-500">7 days free. No credit card required. Cancel anytime.</p>
+                    <p class="text-center text-xs text-gray-500">No payment is being accepted at this time.</p>
                 </div>
                 <div class="bg-hollywood-900/50 p-4 text-center border-t border-hollywood-gold/10">
                     <p class="text-xs text-gray-500">Already subscribed? <a href="#" onclick="toggleAuthModal(); togglePremiumModal(); return false;" class="text-hollywood-gold hover:underline">Sign in here</a></p>
@@ -1544,11 +1538,7 @@
             appId: "1:675688373991:web:92057797ae8e14a2080c42"
         };
 
-        const STRIPE_PUBLISHABLE_KEY = 'pk_live_51TTwKxGMApqN2dHHpgUfU3nDMxp9YJl7zWch5nx0k0c2jyWZl6lc2PdTLhskbsvIpQTdTG3cl2XzesBy07MEDfqD00FWnbgjo3';
-        const BACKEND_URL = 'https://jollywood-stripe.laruexstjames.workers.dev'; // Cloudflare Worker backend
-
-        // ==================== ROKU CAPI ====================
-        const ROKU_CAPI_WORKER = 'https://jollywood-roku-capi.laruexstjames.workers.dev';
+        // ==================== CONVERSION TRACKING ====================
 
         /**
          * Send a conversion event to Roku via the CAPI Worker (server-side relay).
@@ -1556,26 +1546,8 @@
          * @param {object} options    - Optional: { userEmail, customData, referrerUrl }
          */
         async function sendRokuCapiEvent(eventName, options = {}) {
-            try {
-                const eventId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
-                const payload = {
-                    event_name: eventName,
-                    event_id: eventId,
-                    event_source_url: window.location.href,
-                    referrer_url: document.referrer || undefined,
-                    user_email: options.userEmail || (currentUser ? currentUser.email : undefined),
-                    custom_data: options.customData || undefined,
-                    test_mode: false
-                };
-                // Fire and forget — don't block the UI
-                fetch(ROKU_CAPI_WORKER, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                }).catch(() => {}); // Silently ignore network errors
-            } catch (e) {
-                // Never let tracking errors affect the user experience
-            }
+            // Disabled until a rotated Roku credential and authenticated server-side relay are deployed.
+            return;
         }
 
         // Track affiliate link clicks
@@ -1594,11 +1566,7 @@
             });
         });
 
-        // Stripe Price IDs from your Stripe Dashboard
-        const STRIPE_PRICES = {
-            monthly: 'price_YOUR_MONTHLY_PRICE_ID',
-            annual: 'price_YOUR_ANNUAL_PRICE_ID'
-        };
+        const SUBSCRIPTION_ENABLED = false;
 
         // ==================== INITIALIZATION ====================
         
@@ -1668,7 +1636,7 @@
         });
 
         function updatePremiumUI() {
-            const isPremium = userSubscription && userSubscription.subscriptionStatus === 'active';
+            const isPremium = SUBSCRIPTION_ENABLED && userSubscription && userSubscription.subscriptionStatus === 'active';
             
             // Nav badge
             const badge = document.getElementById('premiumBadge');
@@ -1850,72 +1818,15 @@
         }
 
         async function startCheckout(plan) {
-            if (!currentUser) {
-                toggleAuthModal();
-                return;
-            }
-            selectedPlan = plan;
-            await confirmCheckout();
+            return;
         }
 
         async function confirmCheckout() {
-            if (!currentUser) {
-                togglePremiumModal();
-                toggleAuthModal();
-                return;
-            }
-            
-            const btn = document.getElementById('checkoutBtn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Redirecting...';
-            
-            try {
-                // Fire INITIATE_CHECKOUT CAPI event
-                sendRokuCapiEvent('INITIATE_CHECKOUT', {
-                    customData: {
-                        content_name: selectedPlan === 'monthly' ? 'Jollywood Insider Monthly $9.99' : 'Jollywood Insider Annual $5.99/mo',
-                        content_category: 'subscription',
-                        currency: 'USD',
-                        value: selectedPlan === 'monthly' ? 9.99 : 71.88
-                    }
-                });
-                const response = await fetch(`${BACKEND_URL}/create-checkout-session`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        priceId: STRIPE_PRICES[selectedPlan],
-                        userId: currentUser.uid,
-                        userEmail: currentUser.email
-                    })
-                });
-                
-                const session = await response.json();
-                if (session.url) {
-                    window.location.href = session.url;
-                } else {
-                    throw new Error('No checkout URL returned');
-                }
-            } catch (err) {
-                console.error('Checkout error:', err);
-                btn.textContent = 'Error. Try again.';
-                setTimeout(() => btn.textContent = 'Start Free Trial', 2000);
-            }
+            return;
         }
 
         async function openBillingPortal() {
-            if (!userSubscription || !userSubscription.stripeCustomerId) return;
-            
-            try {
-                const response = await fetch(`${BACKEND_URL}/create-portal-session`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ customerId: userSubscription.stripeCustomerId })
-                });
-                const session = await response.json();
-                if (session.url) window.location.href = session.url;
-            } catch (err) {
-                console.error('Portal error:', err);
-                alert('Could not open billing portal. Please try again.');
-            }
+            return;
         }
 
         // ==================== NEWS & BOX OFFICE (UNCHANGED) ====================
