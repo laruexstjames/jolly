@@ -1,0 +1,9 @@
+/.env /404.html 404
+/.env.* /404.html 404
+/.git/* /404.html 404
+/.github/* /404.html 404
+/wrangler.toml /404.html 404
+/package.json /404.html 404
+/package-lock.json /404.html 404
+/pnpm-lock.yaml /404.html 404
+/yarn.lock /404.html 404
